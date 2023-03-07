@@ -4,9 +4,10 @@
 
 ## Getting started
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+This application is written to monitor diferent variables from an RS485 capable device.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Based on the (Waveshare USB to RS485B)[https://www.waveshare.com/wiki/USB_TO_RS485_(B)]
+
 
 ## Add your files
 
@@ -64,7 +65,22 @@ On some READMEs, you may see small images that convey metadata, such as whether 
 Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+
+Taking RPI as an example, you can use the default driver. After connecting the device, you can use the following command to query the serial device name:
+
+```
+ls /dev/tty*
+```
+
+You can then access the serial device using, e.g., [minicom](https://www.waveshare.com/wiki/Raspberry_Pi_Tutorial_Series:_Serial):
+
+```
+minicom -b 9600 -D /dev/ttyACM0
+```
+
+- -D Specify the device, overriding the value given in the configuration file. The followed device, `/dev/ttyACM0`, is the serial device specified by -D
+- The baud rate of serial is set to 115200 by default, which can be changed by `-b 9600`. You can read the detailed manual with the command man minicom
+
 
 ## Usage
 Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.

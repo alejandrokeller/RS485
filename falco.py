@@ -25,15 +25,15 @@ class Falco( minimalmodbus.Instrument ):
 
     def get_voc(self):
         """Return the Gas concentration. 32 bit float, 2 Registers"""
-        return self.read_register(102, 1)
+        return self.read_float(102, 1)
 
     def get_voltage(self):
         """Return the sensor voltage in mV. 32 bit float, 2 Registers"""
-        return self.read_register(106, 1)
+        return self.read_float(106, 1)
 
     def get_temperature(self):
         """Return the sensor temperature in degC. 16 bit signet int, 1 Register"""
-        return self.read_register(108, 1)
+        return self.read_register(108, 1, signet = True)
 
     def get_led(self):
         """Return the led brightness. 16 bit unsignet int [0-100], 1 Register"""
@@ -45,11 +45,11 @@ class Falco( minimalmodbus.Instrument ):
 
     def get_unit(self):
         """Return the measurement unit. char ['p' or 'g'], 1 Register"""
-        return self.read_register(1005, 1)
+        return self.read_string(1005, 1, number_of_registers = 1)
 
     def get_rf(self):
         """Return the response factor. 32 bit float [0.1 - 10.0], 2 Registers"""
-        return self.read_register(1010, 1)
+        return self.read_float(1010, 1)
 
     def get_range(self):
         """Return the sensor range. 16 bit unsignet int [10, 50, 1000, 3000], 1 Register"""

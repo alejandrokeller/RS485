@@ -25,30 +25,30 @@ class Falco( minimalmodbus.Instrument ):
 
     def get_voc(self):
         """Return the Gas concentration. 32 bit float, 2 Registers"""
-        return self.read_float(102, 1)
+        return self.read_float(102)
 
     def get_voltage(self):
         """Return the sensor voltage in mV. 32 bit float, 2 Registers"""
-        return self.read_float(106, 1)
+        return self.read_float(106)
 
     def get_temperature(self):
         """Return the sensor temperature in degC. 16 bit signet int, 1 Register"""
-        return self.read_register(108, 1, signet = True)
+        return self.read_register(108, signed = True)
 
     def get_led(self):
         """Return the led brightness. 16 bit unsignet int [0-100], 1 Register"""
-        return self.read_register(182, 1)
+        return self.read_register(182)
 
     def get_version(self):
         """Return the hardware version. 16 bit unsignet int [1-255], 1 Register"""
-        return self.read_register(1003, 1)
+        return self.read_register(1003)
 
     def get_unit(self):
         """Return the measurement unit. char ['p' or 'g'], 1 Register
         
         This translates to p = ppm or g = mg/m3.
         """
-        u = self.read_string(1005, 1, number_of_registers = 1)
+        u = self.read_string(1005, number_of_registers = 1)
         match u:
         case 'p':
             return 'ppm'
@@ -61,19 +61,19 @@ class Falco( minimalmodbus.Instrument ):
 
     def get_rf(self):
         """Return the response factor. 32 bit float [0.1 - 10.0], 2 Registers"""
-        return self.read_float(1010, 1)
+        return self.read_float(1010)
 
     def get_range(self):
         """Return the sensor range. 16 bit unsignet int [10, 50, 1000, 3000], 1 Register"""
-        return self.read_register(1012, 1)
+        return self.read_register(1012)
 
     def get_cal100(self):
         """Return the cal 100 value. 16 bit unsignet int [0 - 65535 (Default value 500) ], 1 Register"""
-        return self.read_register(1060, 1)
+        return self.read_register(1060)
 
     def get_cal3000(self):
         """Return the cal 3000 value. 16 bit unsignet int [0 - 65535 (Default value 3000) ], 1 Register"""
-        return self.read_register(1061, 1)
+        return self.read_register(1061)
 
     def readline(self):
         """Return a list of dictionaries with current data.

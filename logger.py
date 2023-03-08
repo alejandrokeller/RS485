@@ -13,9 +13,6 @@ from falco import Falco
 
 def create_data_file(path, header, name): 
     #This function creates column headers for a new datafile
-    fo      = open(header, "r")
-    header  = fo.read()
-    fo.close()
     prefix  = time.strftime("%Y%m%d-%H%M%S-")
     date    = time.strftime("%Y-%m-%d")
     newname = path + prefix + name
@@ -27,7 +24,7 @@ def create_data_file(path, header, name):
 
     return newname
 
-def log_message(self, module, msg):
+def log_message(module, msg):
         """
         Logs a message with standard format
         """
@@ -38,10 +35,13 @@ def log_message(self, module, msg):
 
 
 ## Start logging script
-
 base_path = os.path.abspath(os.path.dirname(sys.argv[0]))
 sys.path.append(base_path + '/')
-from gui import send_string
+
+## place holder for send_string
+#from gui import send_string
+def send_string(line, server_address, sock = 0):
+   return 0
 
 # READ ini file
 config_file = base_path + '/config.ini'
@@ -67,35 +67,43 @@ else:
 # Connect the socket to the port where the server is listening
 server_address = (server_name, server_port)
 sock = 0
-
-# Variables
-headerfile = base_path + "/" + header_file_name
-counter = 0
-
-sensor = falco(falco_port, falco_address)
-
-filename = basefilename + extension
-
-filedate = datetime.datetime.now()
-f = create_data_file(data_path, header=headerfile, name=filename)
-
-log_message("LOGGER", "Writing to Datafile: " + f)
-log_message("LOGGER", "Using header file: " + headerfile)
-
-x=''
-
 log_message("LOGGER", 'starting up on %s port %s' %server_address)
 
-while 1:
-    try:
-       data_string=falco.readline()
-       daytime = time.strftime("%H:%M:%S")
-    except serial.serialutil.SerialException:
+# Prepare Header string
+try:
+   data = falco.readline()
+   
+except serial.serialutil.SerialException:
        #device.close_port()
        log_message("LOGGER", "cannot read data-line. Restarting port and waiting 5 seconds...")
 
        time.sleep(5)
-       #device.open_port()
+
+# Variables
+counter = 0
+sensor = falco(falco_port, falco_address)
+filename = basefilename + extension
+filedate = False
+x=''
+
+while 1:
+    try:
+      data = falco.readline()
+      json_string = json.dumps(data)
+      daytime = time.strftime("%H:%M:%S")
+      data_string = daytime
+      columns_string = 'daytime'
+      units_string = 'hh:mm:ss'
+      for dic in data:
+         data_string += '\t' + dic['val'])
+         columns_string += '\t' + dic['var'])
+         units_string   += '\t' + dic['unit'])
+      header_string = columns_string + '\n' + units_string
+
+    except serial.serialutil.SerialException:
+       log_message("LOGGER", "cannot read data-line. Waiting 5 seconds...")
+       time.sleep(5)
+
     except KeyboardInterrupt:
        log_message("LOGGER", "aborted by user!")
        #device.close_port()
@@ -105,23 +113,28 @@ while 1:
        fo.close()
        log_message("LOGGER", "bye...")
        break
+
     except:
-       #device.close_port()
-       log_message("LOGGER", "something went wrong... Restarting port and waiting 5 seconds...")
+       log_message("LOGGER", "something went wrong... Waiting 5 seconds...")
        log_message("LOGGER", "    --- error type: " + str(sys.exc_info()[0]))
        log_message("LOGGER", "    --- error value: " + str(sys.exc_info()[1]))
        log_message("LOGGER", "    --- error traceback: " + str(sys.exc_info()[2]))
 
        time.sleep(5)
-       #device.open_port()
 
     if data_string <> "":
        x+=daytime + '\t' + data_string
 
        # transmit TCP data
-       sock = send_string(data_string, server_address, sock)
+       sock = send_string(json_string, server_address, sock)
     counter+=1;
     newdate = datetime.datetime.now()
+
+    # Start a new datafile if none available
+    if not filedate:
+       f = create_data_file(data_path, header=header_string, name=filename)
+       log_message("LOGGER", "Writing to Datafile: " + f)
+       filedate = newdate
 
     # Create a new file at midnight
     if newdate.day <> filedate.day:
@@ -131,7 +144,7 @@ while 1:
        x=''
        counter=0
        filedate = newdate
-       f = create_data_file(data_path, header=headerfile, name=basefilename)
+       f = create_data_file(data_path, header=header_string, name=basefilename)
        log_message("LOGGER", "Writing to Datafile: " + f)
     elif counter >= buffersize:
        fo = open(f, "a")

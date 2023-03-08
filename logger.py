@@ -3,8 +3,8 @@
 import os, sys
 import datetime, time
 import configparser
-import serial
-import serial.tools.list_ports
+import json
+import minimalmodbus
 
 ## Import instrument driver
 from falco import Falco
@@ -73,8 +73,7 @@ log_message("LOGGER", 'starting up on %s port %s' %server_address)
 try:
    data = falco.readline()
    
-except serial.serialutil.SerialException:
-       #device.close_port()
+except minimalmodbus.ModbusException:
        log_message("LOGGER", "cannot read data-line. Restarting port and waiting 5 seconds...")
 
        time.sleep(5)
@@ -100,7 +99,7 @@ while 1:
          units_string   += '\t' + dic['unit'])
       header_string = columns_string + '\n' + units_string
 
-    except serial.serialutil.SerialException:
+    except minimalmodbus.ModbusException:
        log_message("LOGGER", "cannot read data-line. Waiting 5 seconds...")
        time.sleep(5)
 

@@ -74,6 +74,8 @@ counter = 0
 filename = basefilename + extension
 filedate = False
 x=''
+data_string = ''
+header_string = ''
 
 try:
     sensor = Falco(falco_port, falco_address)
@@ -84,13 +86,14 @@ except:
     exit()
 
 while 1:
+    daytime = time.strftime("%H:%M:%S")
+    columns_string = 'daytime'
+    units_string = 'hh:mm:ss'
+    
     try:
+      data_string += daytime
       data = sensor.readline()
       json_string = json.dumps(data)
-      daytime = time.strftime("%H:%M:%S")
-      data_string = daytime
-      columns_string = 'daytime'
-      units_string = 'hh:mm:ss'
       for dic in data:
          data_string += '\t' + dic['val']
          columns_string += '\t' + dic['var']
@@ -104,9 +107,12 @@ while 1:
     except KeyboardInterrupt:
        log_message("LOGGER", "aborted by user!")
        log_message("LOGGER", "Writing data...")
-       fo = open(f, "a")
-       fo.write(x)
-       fo.close()
+       if filedate:
+           fo = open(f, "a")
+           fo.write(x)
+           fo.close()
+       else:
+           log_message("LOGGER", "No data file in use...")
        log_message("LOGGER", "bye...")
        break
 
@@ -127,24 +133,25 @@ while 1:
     newdate = datetime.datetime.now()
 
     # Start a new datafile if none available
-    if not filedate:
+    if not filedate and header_string:
        f = create_data_file(data_path, header=header_string, name=filename)
        log_message("LOGGER", "Writing to Datafile: " + f)
        filedate = newdate
-
-    # Create a new file at midnight
-    if newdate.day != filedate.day:
-       fo = open(f, "a")
-       fo.write(x)
-       fo.close()
-       x=''
-       counter=0
-       filedate = newdate
-       f = create_data_file(data_path, header=header_string, name=basefilename)
-       log_message("LOGGER", "Writing to Datafile: " + f)
-    elif counter >= buffersize:
-       fo = open(f, "a")
-       fo.write(x)
-       fo.close()
-       x=''
-       counter=0
+    
+    if filedate:
+        # Create a new file at midnight
+        if newdate.day != filedate.day:
+           fo = open(f, "a")
+           fo.write(x)
+           fo.close()
+           x=''
+           counter=0
+           filedate = newdate
+           f = create_data_file(data_path, header=header_string, name=basefilename)
+           log_message("LOGGER", "Writing to Datafile: " + f)
+        elif counter >= buffersize:
+           fo = open(f, "a")
+           fo.write(x)
+           fo.close()
+           x=''
+           counter=0

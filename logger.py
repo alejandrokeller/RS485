@@ -8,6 +8,7 @@ import minimalmodbus
 
 ## Import instrument driver
 from falco import Falco
+from smt100 import SMT100
 
 ## Define some utility hfunctions
 
@@ -78,7 +79,8 @@ data_string = ''
 header_string = ''
 
 try:
-    sensor = Falco(falco_port, falco_address)
+#    sensor = Falco(falco_port, falco_address)
+    sensor = SMT100(falco_port, falco_address)
 except:
     log_message("LOGGER",
                 "Could not open adress '{}' at port '{}'".format(
@@ -107,12 +109,14 @@ while 1:
     except KeyboardInterrupt:
        log_message("LOGGER", "aborted by user!")
        log_message("LOGGER", "Writing data...")
+       
        if filedate:
            fo = open(f, "a")
            fo.write(x)
            fo.close()
        else:
            log_message("LOGGER", "No data file in use...")
+
        log_message("LOGGER", "bye...")
        break
 

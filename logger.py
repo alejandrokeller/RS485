@@ -97,14 +97,17 @@ while 1:
       data = sensor.readline()
       json_string = json.dumps(data)
       for dic in data:
-         data_string += '\t' + dic['val']
+         data_string += '\t' +  repr(dic['val'])
          columns_string += '\t' + dic['var']
          units_string   += '\t' + dic['unit']
+         
       header_string = columns_string + '\n' + units_string
+      data_string += '\n'
+      print(json_string)
 
-    except minimalmodbus.ModbusException:
-       log_message("LOGGER", "cannot read data-line. Waiting 5 seconds...")
-       time.sleep(5)
+#     except minimalmodbus.ModbusException:
+#        log_message("LOGGER", "cannot read data-line. Waiting 5 seconds...")
+#        time.sleep(5)
 
     except KeyboardInterrupt:
        log_message("LOGGER", "aborted by user!")
@@ -129,7 +132,7 @@ while 1:
        time.sleep(5)
 
     if not data_string:
-       x+=daytime + '\t' + data_string
+       x+= data_string
 
        # transmit TCP data
        sock = send_string(json_string, server_address, sock)

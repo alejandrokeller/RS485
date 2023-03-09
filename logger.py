@@ -69,34 +69,32 @@ server_address = (server_name, server_port)
 sock = 0
 log_message("LOGGER", 'starting up on %s port %s' %server_address)
 
-# Prepare Header string
-try:
-   data = falco.readline()
-   
-except minimalmodbus.ModbusException:
-       log_message("LOGGER", "cannot read data-line. Restarting port and waiting 5 seconds...")
-
-       time.sleep(5)
-
 # Variables
 counter = 0
-sensor = falco(falco_port, falco_address)
 filename = basefilename + extension
 filedate = False
 x=''
 
+try:
+    sensor = Falco(falco_port, falco_address)
+except:
+    log_message("LOGGER",
+                "Could not open adress '{}' at port '{}'".format(
+                falco_address, falco_port))
+    exit()
+
 while 1:
     try:
-      data = falco.readline()
+      data = sensor.readline()
       json_string = json.dumps(data)
       daytime = time.strftime("%H:%M:%S")
       data_string = daytime
       columns_string = 'daytime'
       units_string = 'hh:mm:ss'
       for dic in data:
-         data_string += '\t' + dic['val'])
-         columns_string += '\t' + dic['var'])
-         units_string   += '\t' + dic['unit'])
+         data_string += '\t' + dic['val']
+         columns_string += '\t' + dic['var']
+         units_string   += '\t' + dic['unit']
       header_string = columns_string + '\n' + units_string
 
     except minimalmodbus.ModbusException:
@@ -105,7 +103,6 @@ while 1:
 
     except KeyboardInterrupt:
        log_message("LOGGER", "aborted by user!")
-       #device.close_port()
        log_message("LOGGER", "Writing data...")
        fo = open(f, "a")
        fo.write(x)
@@ -121,7 +118,7 @@ while 1:
 
        time.sleep(5)
 
-    if data_string <> "":
+    if not data_string:
        x+=daytime + '\t' + data_string
 
        # transmit TCP data
@@ -136,7 +133,7 @@ while 1:
        filedate = newdate
 
     # Create a new file at midnight
-    if newdate.day <> filedate.day:
+    if newdate.day != filedate.day:
        fo = open(f, "a")
        fo.write(x)
        fo.close()

@@ -48,14 +48,12 @@ class Falco( minimalmodbus.Instrument ):
         
         This translates to p = ppm or g = mg/m3.
         """
+         
         u = self.read_string(1005, number_of_registers = 1)
-        match u:
-        case 'p':
-            return 'ppm'
-        case 'g':
+        if u == 'g':
             return 'mg/m3'
-        case _:
-            return 'ppm'   # ppm is the default case if u is not found
+        else: # other possibility is 'p'
+            return 'ppm'
 
         # return self.read_string(1005, 1, number_of_registers = 1)
 

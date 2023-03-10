@@ -71,12 +71,13 @@ class Visualizer(object):
             "-"         # Count
             ]
 
-        zeroDict = [
-            self.keys[0]: datetime.now().strftime("%H:%M:%S"),
-            self.keys[1]: 0.0,
-            self.keys[2]: 0.0,
-            self.keys[3]: 0
-            ]
+        zeroDict = []
+
+        zeroDict[self.keys[0]] = time.localtime()
+        zeroDict[self.keys[1]] = 0.0
+        zeroDict[self.keys[2]] = 0.0
+        zeroDict[self.keys[3]] = 0
+            
 
 
         self.unitsDict = dict(zip(self.keys, self.units))

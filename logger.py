@@ -104,9 +104,16 @@ while 1:
       header_string = columns_string + '\n' + units_string
       data_string += '\n'
       print(json_string)
+      
+      if json_string:
+        # transmit TCP data  
+        sock = send_string(json_string, server_address, sock)
+
+        x+= data_string
+        counter+=1;
 
 #     except minimalmodbus.ModbusException:
-#        log_message("LOGGER", "cannot read data-line. Waiting 5 seconds...")
+#        log_message("LOGGER", "cannot read data-line. Waiting 5...")
 #        time.sleep(5)
 
     except KeyboardInterrupt:
@@ -131,12 +138,6 @@ while 1:
 
        time.sleep(5)
 
-    if not data_string:
-       x+= data_string
-
-       # transmit TCP data
-       sock = send_string(json_string, server_address, sock)
-    counter+=1;
     newdate = datetime.datetime.now()
 
     # Start a new datafile if none available

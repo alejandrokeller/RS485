@@ -11,7 +11,7 @@ import socket
 import sys, os
 import numpy as np
 import pandas as pd
-import daytime
+import datetime
 import json
 import configparser
 
@@ -75,12 +75,13 @@ class Visualizer(object):
         zeroDict[self.keys[2]] = 0.0
         zeroDict[self.keys[3]] = 0
 
-        self.t = np.linspace(daytime.now() - timedelta(minutes=10), daytime.now(), self.numSamples)
+#        self.t = np.linspace(datetime.now() - datetime.timedelta(minutes=10), datetime.now(), self.numSamples)
+        self.t = np.linspace(-self.deltaT*self.numSamples, 0, self.numSamples)
+
 
         self.unitsDict = dict(zip(self.keys, self.units))
         self.df = pd.DataFrame(columns=self.keys)
-#        self.df = pd.concat([self.df, pd.DataFrame([zeroDict]*self.numSamples)],ignore_index=True)
-        self.t = np.linspace(-self.deltaT*self.numSamples, 0, self.numSamples)
+        self.df = pd.concat([self.df, pd.DataFrame([zeroDict]*self.numSamples)],ignore_index=True)
 
         # setup plots
         self.pen = pg.mkPen('y', width=1)

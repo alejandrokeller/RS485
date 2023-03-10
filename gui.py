@@ -77,7 +77,7 @@ class Visualizer(object):
             0         # Count
             ]
 
-        zeroDict = dict.fromkeys(self.keys, self.initValues)
+        zeroDict = dict(zip(self.keys, self.initValues))
 
 #        self.t = np.linspace(datetime.now() - datetime.timedelta(minutes=10), datetime.now(), self.numSamples)
         self.t = np.linspace(-self.deltaT*self.numSamples, 0, self.numSamples)

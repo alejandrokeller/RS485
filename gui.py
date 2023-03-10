@@ -5,8 +5,8 @@
 # provides also a buttons interface for interacting with the 
 # measurement instrument
 
-from pyqtgraph.Qt import QtGui, QtCore, QtWidgets
-import pyqtgraph as pg
+from PyQt5 import QtGui, QtCore, QtWidgets
+import PyQt5 as pg
 import socket
 import sys, os
 import numpy as np

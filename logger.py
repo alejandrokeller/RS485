@@ -40,9 +40,9 @@ base_path = os.path.abspath(os.path.dirname(sys.argv[0]))
 sys.path.append(base_path + '/')
 
 ## place holder for send_string
-#from gui import send_string
-def send_string(line, server_address, sock = 0):
-   return 0
+from gui import send_string
+#def send_string(line, server_address, sock = 0):
+#   return 0
 
 # READ ini file
 config_file = base_path + '/config.ini'

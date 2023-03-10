@@ -11,11 +11,20 @@ import socket
 import sys, os
 import numpy as np
 import pandas as pd
-import datetime
+import datetime, time
 import json
 import configparser
 
 base_path = os.path.abspath(os.path.dirname(sys.argv[0]))
+
+def log_message(module, msg):
+        """
+        Logs a message with standard format
+        """
+        timestamp = time.strftime("%Y.%m.%d-%H:%M:%S ")
+        log_message = "- [{0}] :: {1}"
+        log_message = timestamp + log_message.format(module,msg)
+        print(log_message, file=sys.stderr)
 
 def send_string(line, server_address, sock = 0):
     # Sends a string to through a TCP socket
@@ -27,11 +36,11 @@ def send_string(line, server_address, sock = 0):
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.connect(server_address)
             
-        sock.sendall(line)
+        sock.sendall(line.encode())
     except socket.error:
-##        print("nobody listening", file = sys.stderr)
+#        print("nobody listening", file = sys.stderr)
         sock.close()
-##        print('closing socket', file = sys.stderr)
+#        print('closing socket', file = sys.stderr)
         sock = 0
 
     return sock
@@ -51,8 +60,8 @@ class Visualizer(object):
 
         # init pyqt
         self.app = QtWidgets.QApplication([])
-#        pg.setConfigOptions(antialias=False)
-#        pg.setConfigOption('foreground', 'w')
+        pg.setConfigOptions(antialias=False)
+        pg.setConfigOption('foreground', 'w')
 
         #init data structure
         self.numSamples = 1200 
@@ -72,9 +81,9 @@ class Visualizer(object):
             ]
 
         self.initValues = [
-            0.0,       # T
+            0.0,     # T
             0.0,     # Moist
-            0         # Count
+            0.0      # Count
             ]
 
         zeroDict = dict(zip(self.keys, self.initValues))
@@ -94,10 +103,10 @@ class Visualizer(object):
         self.Tplot = pg.PlotWidget()
         self.Tplot.addLegend()
 #        self.Tplot.setRange(yRange=[0, 900])
-        self.Tplot.setLabel('left', "Temperature", units='°C')
+        self.Tplot.setLabel('left', "Count", units='-')
         self.Tplot.setLabel('bottom', "t")
         self.Tplot.showGrid(False, True)
-        self.Tcurve = self.Tplot.plot(self.t, self.df['T'], pen=self.pen)
+        self.Tcurve = self.Tplot.plot(self.t, self.df['Count'], pen=self.pen)
 
         self.Mplot = pg.PlotWidget()
         self.Mplot.setRange(yRange=[50, 100])
@@ -133,28 +142,50 @@ class Visualizer(object):
     def update(self):
 
         try: 
-            self.datastring = self.connection.recv(1024)
-            dataDict = json.load(self.datastring)
+            self.datastring = self.connection.recv(1024).decode()
 
+            # if two points were read
+            two_points = self.datastring.find('][')
+            if two_points > 0:
+                    self.datastring = self.datastring[0:two_points+1]
+            recvData = {}
+            recvUnit = {}
             if self.datastring:
+                dataDict = json.loads(self.datastring)
+                for v in dataDict:
+                        recvData[v['var']] = v['val']
+                        recvUnit[v['var']] = v['unit']
+
+            if recvData:
                #Eliminate first element
                 self.df = self.df[1:self.numSamples]
                 newData = self.df.iloc[[-1]].to_dict('records')[0]
                 for k in self.keys:
                     try:
-                        newData[k] = dataDict[k]['val']
+                        newData[k] = recvData[k]
                     except:
                         print("could not extract ", k, " value from ", dataDict)
 
                 self.df = pd.concat([self.df, pd.DataFrame([newData])],ignore_index=True)
 
-                self.Tcurve.setData(self.t, self.df['T'])
+                self.Tcurve.setData(self.t, self.df['Count'])
                 self.Mcurve.setData(self.t, self.df['Moist'])
 
-                self.lblCounts.setText("Counts: {})".format(newData['Count']))
-                
-        except Exception as e:
-            print(e, file=sys.stderr)
+                self.lblCounts.setText("Temperature: {} degC".format(newData['T']))
+
+        except KeyboardInterrupt:
+            log_message("LOGGER", "aborted by user!")
+            print(self.datastring)
+            exit()
+
+        except:
+            log_message("LOGGER", "    --- error type: " + str(sys.exc_info()[0]))
+            log_message("LOGGER", "    --- error value: " + str(sys.exc_info()[1]))
+            exec_tb = sys.exc_info()[2]
+            fname = os.path.split(exec_tb.tb_frame.f_code.co_filename)[1]
+            log_message("LOGGER", "    --- error File: {}".format(fname))
+            log_message("LOGGER", "    --- error line: {}".format(exec_tb.tb_lineno))
+            
 ##            raise
 
 ## Start Qt event loop unless running in interactive mode or using pyside.
@@ -177,7 +208,7 @@ if __name__ == '__main__':
 
     timer = QtCore.QTimer()
     timer.timeout.connect(vis.update)
-    timer.start(vis.deltaT*1000)
+    timer.start(round(vis.deltaT*1000))
 
     if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
         QtWidgets.QApplication.instance().exec_()

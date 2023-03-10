@@ -6,6 +6,9 @@ import configparser
 import json
 import minimalmodbus
 
+## Import function for sending data to gui.py
+from gui import send_string
+
 ## Import instrument driver
 from falco import Falco
 from smt100 import SMT100
@@ -38,11 +41,6 @@ def log_message(module, msg):
 ## Start logging script
 base_path = os.path.abspath(os.path.dirname(sys.argv[0]))
 sys.path.append(base_path + '/')
-
-## place holder for send_string
-from gui import send_string
-#def send_string(line, server_address, sock = 0):
-#   return 0
 
 # READ ini file
 config_file = base_path + '/config.ini'
@@ -103,10 +101,9 @@ while 1:
          
       header_string = columns_string + '\n' + units_string
       data_string += '\n'
-      print(json_string)
       
       if json_string:
-        # transmit TCP data  
+        # transmit TCP data
         sock = send_string(json_string, server_address, sock)
 
         x+= data_string
@@ -134,7 +131,10 @@ while 1:
        log_message("LOGGER", "something went wrong... Waiting 5 seconds...")
        log_message("LOGGER", "    --- error type: " + str(sys.exc_info()[0]))
        log_message("LOGGER", "    --- error value: " + str(sys.exc_info()[1]))
-       log_message("LOGGER", "    --- error traceback: " + str(sys.exc_info()[2]))
+       exec_tb = sys.exc_info()[2]
+       fname = os.path.split(exec_tb.tb_frame.f_code.co_filename)[1]
+       log_message("LOGGER", "    --- error File: {}".format(fname))
+       log_message("LOGGER", "    --- error line: {}".format(exec_tb.tb_lineno))
 
        time.sleep(5)
 

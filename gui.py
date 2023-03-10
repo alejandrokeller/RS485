@@ -6,7 +6,7 @@
 # measurement instrument
 
 from PyQt5 import QtGui, QtCore, QtWidgets
-import PyQt5 as pg
+import pyqtgraph as pg
 import socket
 import sys, os
 import numpy as np

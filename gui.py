@@ -11,7 +11,7 @@ import socket
 import sys, os
 import numpy as np
 import pandas as pd
-import time
+import daytime
 import json
 import configparser
 
@@ -59,31 +59,28 @@ class Visualizer(object):
         self.datastring = ""
 
         self.keys = [
-            "daytime",
             "T",
             "Moist",
             "Count"
             ]
         
         self.units = [
-            "hh:mm:ss", # daytime
             "°C",       # T
             "vol%",     # Moist
             "-"         # Count
             ]
 
         zeroDict = []
-
-        zeroDict[self.keys[0]] = time.localtime()
         zeroDict[self.keys[1]] = 0.0
         zeroDict[self.keys[2]] = 0.0
         zeroDict[self.keys[3]] = 0
-            
 
+        self.t = np.linspace(daytime.now() - timedelta(minutes=10), daytime.now(), self.numSamples)
 
         self.unitsDict = dict(zip(self.keys, self.units))
         self.df = pd.DataFrame(columns=self.keys)
-        self.df = pd.concat([self.df, pd.DataFrame([zeroDict]*self.numSamples)],ignore_index=True)
+#        self.df = pd.concat([self.df, pd.DataFrame([zeroDict]*self.numSamples)],ignore_index=True)
+        self.t = np.linspace(-self.deltaT*self.numSamples, 0, self.numSamples)
 
         # setup plots
         self.pen = pg.mkPen('y', width=1)
@@ -95,14 +92,14 @@ class Visualizer(object):
         self.Tplot.setLabel('left', "Temperature", units='°C')
         self.Tplot.setLabel('bottom', "t")
         self.Tplot.showGrid(False, True)
-        self.Tcurve = self.Tplot.plot(self.df['daytime'], self.df['T'].astype(str).astype(float), pen=self.pen)
+        self.Tcurve = self.Tplot.plot(self.t, self.df['T'].astype(str).astype(float), pen=self.pen)
 
         self.Mplot = pg.PlotWidget()
         self.Mplot.setRange(yRange=[50, 100])
         self.Mplot.setLabel('left', "Moist.", units='vol%')
         self.Mplot.setLabel('bottom', "t")
         self.Mplot.showGrid(False, True)
-        self.Mcurve = self.Mplot.plot(self.df['daytime'], self.df['Moist'], pen=self.pen)
+        self.Mcurve = self.Mplot.plot(self.t, self.df['Moist'], pen=self.pen)
 
 #####################################################################
 
@@ -146,8 +143,8 @@ class Visualizer(object):
 
                 self.df = pd.concat([self.df, pd.DataFrame([newData])],ignore_index=True)
 
-                self.Tcurve.setData(self.df['daytime'], self.df['T'])
-                self.Mcurve.setData(self.df['daytime'], self.df['Moist'])
+                self.Tcurve.setData(self.t, self.df['T'])
+                self.Mcurve.setData(self.t, self.df['Moist'])
 
                 self.lblCounts.setText("Counts: {})".format(newData['Count']))
                 

@@ -51,8 +51,8 @@ class Visualizer(object):
 
         # init pyqt
         self.app = QtWidgets.QApplication([])
-        pg.setConfigOptions(antialias=False)
-        pg.setConfigOption('foreground', 'w')
+#        pg.setConfigOptions(antialias=False)
+#        pg.setConfigOption('foreground', 'w')
 
         #init data structure
         self.numSamples = 1200 

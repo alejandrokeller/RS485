@@ -57,6 +57,7 @@ class Visualizer(object):
         #init data structure
         self.numSamples = 1200 
         self.datastring = ""
+        self.deltaT = 0.5
 
         self.keys = [
             "T",

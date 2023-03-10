@@ -37,7 +37,7 @@ def send_string(line, server_address, sock = 0):
     return sock
 
 class Visualizer(object):
-    def __init__(self, host_name='localhost', host_port=10000, config_file='config.ini'):
+    def __init__(self, host_name='localhost', host_port=10000):
         
         # init socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Create a TCP/IP socket
@@ -171,7 +171,7 @@ if __name__ == '__main__':
         exit()
 
 
-    vis = Visualizer(host_name=host_name, host_port=host_port, config_file=config_file)
+    vis = Visualizer(host_name=host_name, host_port=host_port)
 
     timer = QtCore.QTimer()
     timer.timeout.connect(vis.update)

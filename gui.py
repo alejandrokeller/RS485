@@ -70,10 +70,13 @@ class Visualizer(object):
             "-"         # Count
             ]
 
-        zeroDict = []
-        zeroDict[self.keys[1]] = 0.0
-        zeroDict[self.keys[2]] = 0.0
-        zeroDict[self.keys[3]] = 0
+        self.initValues = [
+            0.0,       # T
+            0.0,     # Moist
+            0         # Count
+            ]
+
+        zeroDict = dict.fromkeys(self.keys, self.initValues)
 
 #        self.t = np.linspace(datetime.now() - datetime.timedelta(minutes=10), datetime.now(), self.numSamples)
         self.t = np.linspace(-self.deltaT*self.numSamples, 0, self.numSamples)

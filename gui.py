@@ -97,7 +97,7 @@ class Visualizer(object):
         self.Tplot.setLabel('left', "Temperature", units='°C')
         self.Tplot.setLabel('bottom', "t")
         self.Tplot.showGrid(False, True)
-        self.Tcurve = self.Tplot.plot(self.t, self.df['T'].astype(str).astype(float), pen=self.pen)
+        self.Tcurve = self.Tplot.plot(self.t, self.df['T'], pen=self.pen)
 
         self.Mplot = pg.PlotWidget()
         self.Mplot.setRange(yRange=[50, 100])

@@ -100,7 +100,7 @@ class Visualizer(object):
         self.Mplot.setLabel('left', "Moist.", units='vol%')
         self.Mplot.setLabel('bottom', "t")
         self.Mplot.showGrid(False, True)
-        self.Mcurve = self.Pplot.plot(self.df['daytime'], self.df['Moist'], pen=self.pen)
+        self.Mcurve = self.Mplot.plot(self.df['daytime'], self.df['Moist'], pen=self.pen)
 
 #####################################################################
 

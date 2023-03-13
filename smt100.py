@@ -66,7 +66,7 @@ class SMT100( minimalmodbus.Instrument ):
 #             'unit': '-'},
             {'var': 'Count',
             'val': self.get_count(),
-            'unit': '-'}
+            'unit': '#'}
         ]
 
         return response

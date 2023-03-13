@@ -55,7 +55,6 @@ if os.path.exists(config_file):
     server_name         = eval(config['TCP_INTERFACE']['HOST_NAME'])
     server_port         = eval(config['TCP_INTERFACE']['HOST_PORT'])
     
-    header_file_name    = eval(config['LOGGER']['HEADER'])
     buffersize          = eval(config['LOGGER']['BUFFER'])
     basefilename        = eval(config['LOGGER']['DATAFILE'])
     extension           = eval(config['LOGGER']['EXTENSION'])

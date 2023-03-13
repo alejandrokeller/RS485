@@ -72,13 +72,15 @@ class Visualizer(object):
         self.deltaT = 0.5
         self.timeKey = 'Date/Time'
 
+        # variables to keep for front end
         self.keys = [
             "T",
             "Moist",
             "Count",
             self.timeKey
             ]
-        
+
+        # variables to plot (one plot per variable)
         self.plotVariable = [
             "Count",
             "Moist"
@@ -100,18 +102,6 @@ class Visualizer(object):
             self.plot[v].showGrid(False, True)
             self.curve[v] = self.plot[v].plot([], [], pen=self.pen)
 
-#        self.Tplot = pg.PlotWidget(axisItems={'bottom':TimeAxisItem(orientation='bottom')})
-#        self.Tplot.addLegend()
-#        self.Tplot.setLabel('bottom', "Time")
-#        self.Tplot.showGrid(False, True)
-#        self.Tcurve = self.Tplot.plot([], [], pen=self.pen)
-#
-#        self.Mplot = pg.PlotWidget(axisItems={'bottom':TimeAxisItem(orientation='bottom')})
-##        self.Mplot.setRange(yRange=[50, 100])
-#        self.Mplot.setLabel('bottom', "Time")
-#        self.Mplot.showGrid(False, True)
-#        self.Mcurve = self.Mplot.plot([], [], pen=self.pen)
-
 #####################################################################
 
         ## Define a top level widget to hold the controls
@@ -119,14 +109,15 @@ class Visualizer(object):
         self.widgets.setWindowTitle("RS485 Logger")
         self.widgets.showFullScreen()
 
-        self.lblCounts    = QtWidgets.QLabel("Counts: ")
+        # text field to hold info from another variable
+        self.lblTextData    = QtWidgets.QLabel("Counts: ")
 
         ## Create a QVBox layout to manage the plots
         self.plotLayout = QtWidgets.QVBoxLayout()
 
-        self.plotLayout.addWidget(self.Mplot)
-        self.plotLayout.addWidget(self.Tplot)
-        self.plotLayout.addWidget(self.lblCounts)
+        for v in self.plotVariable:
+           self.plotLayout.addWidget(self.plot[v])
+        self.plotLayout.addWidget(self.lblTextData)
 
         ## Create a QHBox layout to manage the plots
         self.centralLayout = QtWidgets.QHBoxLayout()
@@ -177,18 +168,14 @@ class Visualizer(object):
 
                 for v in self.plotVariable:
                     self.curve[v].setData(self.df[self.timeKey], self.df[v])
-                    
-#                self.Tcurve.setData(self.df[self.timeKey], self.df['Count'])
-#                self.Mcurve.setData(self.df[self.timeKey], self.df['Moist'])
 
+                # modify y-axis to show variable name and units
                 if self.firstLoop:
                     for v in self.plotVariable:
                         self.plot[v].setLabel('left', v, units=recvUnit[v])
-#                    self.Tplot.setLabel('left', "Counts", units=recvUnit['Count'])
-#                    self.Mplot.setLabel('left', "Moist.", units=recvUnit['Moist'])
                     self.firstLoop = False
 
-                self.lblCounts.setText("Temperature: {} {}".format(newData['T'],recvUnit['T']))
+                self.lblTextData.setText("Temperature: {} {}".format(newData['T'],recvUnit['T']))
 
         except KeyboardInterrupt:
             log_message("LOGGER", "aborted by user!")

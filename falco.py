@@ -84,10 +84,7 @@ class Falco( minimalmodbus.Instrument ):
         response = [
             {'var': 'VOC',
             'val': self.get_voc(),
-            'unit': '-'},
-            {'var': 'Unit',
-            'val': self.get_unit(),
-            'unit': '-'},
+            'unit': self.get_unit()},
             {'var': 'Voltage',
             'val': self.get_voltage(),
             'unit': 'mV'},

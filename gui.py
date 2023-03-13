@@ -15,6 +15,8 @@ import datetime, time
 import json
 import configparser
 
+from utils import TimeAxisItem, timestamp
+
 base_path = os.path.abspath(os.path.dirname(sys.argv[0]))
 
 def log_message(module, msg):
@@ -87,7 +89,7 @@ class Visualizer(object):
             0.0,     # T
             0.0,     # Moist
             0.0,     # Count
-            datetime.datetime.now()
+            timestamp()
             ]
 
         zeroDict = dict(zip(self.keys, self.initValues))
@@ -99,18 +101,18 @@ class Visualizer(object):
         # setup plots
         self.pen = pg.mkPen('y', width=1)
 
-        self.Tplot = pg.PlotWidget(axisItems={'bottom':pg.DateAxisItem()})
+        self.Tplot = pg.PlotWidget(axisItems={'bottom':TimeAxisItem(orientation='bottom')})
         self.Tplot.addLegend()
 #        self.Tplot.setRange(yRange=[0, 900])
-        self.Tplot.setLabel('left', "Count", units='-')
-        self.Tplot.setLabel('bottom', "t")
+        self.Tplot.setLabel('left', "Counts", units=self.unitsDict['Count'])
+        self.Tplot.setLabel('bottom', "Time")
         self.Tplot.showGrid(False, True)
         self.Tcurve = self.Tplot.plot([], [], pen=self.pen)
 
-        self.Mplot = pg.PlotWidget()
+        self.Mplot = pg.PlotWidget(axisItems={'bottom':TimeAxisItem(orientation='bottom')})
         self.Mplot.setRange(yRange=[50, 100])
-        self.Mplot.setLabel('left', "Moist.", units='vol%')
-        self.Mplot.setLabel('bottom', "t")
+        self.Mplot.setLabel('left', "Moist.", units=self.unitsDict['Moist'])
+        self.Mplot.setLabel('bottom', "Time")
         self.Mplot.showGrid(False, True)
         self.Mcurve = self.Mplot.plot([], [], pen=self.pen)
 
@@ -165,7 +167,7 @@ class Visualizer(object):
                         except:
                            print("could not extract ", k, " value from ", dataDict)
                     else:
-                        newData[k] = datetime.datetime.now()
+                        newData[k] = timestamp() #datetime.datetime.now()
 
                 # reshape dataframe
                 dfRowCount = len(self.df.index)

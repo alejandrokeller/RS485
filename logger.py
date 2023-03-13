@@ -99,7 +99,7 @@ while 1:
          columns_string += '\t' + dic['var']
          units_string   += '\t' + dic['unit']
          
-      header_string = columns_string + '\n' + units_string
+      header_string = columns_string + '\n' + units_string + '\n'
       data_string += '\n'
       
       if json_string:
@@ -155,7 +155,7 @@ while 1:
            x=''
            counter=0
            filedate = newdate
-           f = create_data_file(data_path, header=header_string, name=basefilename)
+           f = create_data_file(data_path, header=header_string, name=filename)
            log_message("LOGGER", "Writing to Datafile: " + f)
         elif counter >= buffersize:
            fo = open(f, "a")

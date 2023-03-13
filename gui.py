@@ -79,33 +79,38 @@ class Visualizer(object):
             self.timeKey
             ]
         
-#        self.units = [
-#            "°C",       # T
-#            "vol%",     # Moist
-#            "-",        # Count
-#            "-"         # self.timeKey
-#            ]
-#
-#        self.unitsDict = dict(zip(self.keys, self.units))
+        self.plotVariable = [
+            "Count",
+            "Moist"
+        ]
+
         self.df = pd.DataFrame(columns=self.keys)
 
         # setup plots
         self.pen = pg.mkPen('y', width=1)
 
-        self.Tplot = pg.PlotWidget(axisItems={'bottom':TimeAxisItem(orientation='bottom')})
-        self.Tplot.addLegend()
-#        self.Tplot.setRange(yRange=[0, 900])
-#        self.Tplot.setLabel('left', "Counts", units=self.unitsDict['Count'])
-        self.Tplot.setLabel('bottom', "Time")
-        self.Tplot.showGrid(False, True)
-        self.Tcurve = self.Tplot.plot([], [], pen=self.pen)
+        self.plot = {}
+        self.curve = {}
 
-        self.Mplot = pg.PlotWidget(axisItems={'bottom':TimeAxisItem(orientation='bottom')})
-#        self.Mplot.setRange(yRange=[50, 100])
-#        self.Mplot.setLabel('left', "Moist.", units=self.unitsDict['Moist'])
-        self.Mplot.setLabel('bottom', "Time")
-        self.Mplot.showGrid(False, True)
-        self.Mcurve = self.Mplot.plot([], [], pen=self.pen)
+        for v in self.plotVariable:
+            self.plot[v] = pg.PlotWidget(axisItems={'bottom':TimeAxisItem(orientation='bottom')})
+            #self.Mplot.setRange(yRange=[50, 100])
+            self.plot[v].addLegend()
+            self.plot[v].setLabel('bottom', "Time")
+            self.plot[v].showGrid(False, True)
+            self.curve[v] = self.plot[v].plot([], [], pen=self.pen)
+
+#        self.Tplot = pg.PlotWidget(axisItems={'bottom':TimeAxisItem(orientation='bottom')})
+#        self.Tplot.addLegend()
+#        self.Tplot.setLabel('bottom', "Time")
+#        self.Tplot.showGrid(False, True)
+#        self.Tcurve = self.Tplot.plot([], [], pen=self.pen)
+#
+#        self.Mplot = pg.PlotWidget(axisItems={'bottom':TimeAxisItem(orientation='bottom')})
+##        self.Mplot.setRange(yRange=[50, 100])
+#        self.Mplot.setLabel('bottom', "Time")
+#        self.Mplot.showGrid(False, True)
+#        self.Mcurve = self.Mplot.plot([], [], pen=self.pen)
 
 #####################################################################
 
@@ -170,12 +175,17 @@ class Visualizer(object):
                 else:
                     self.df = pd.concat([self.df, pd.DataFrame([newData])],ignore_index=True)
 
-                self.Tcurve.setData(self.df[self.timeKey], self.df['Count'])
-                self.Mcurve.setData(self.df[self.timeKey], self.df['Moist'])
+                for v in self.plotVariable:
+                    self.curve[v].setData(self.df[self.timeKey], self.df[v])
+                    
+#                self.Tcurve.setData(self.df[self.timeKey], self.df['Count'])
+#                self.Mcurve.setData(self.df[self.timeKey], self.df['Moist'])
 
                 if self.firstLoop:
-                    self.Tplot.setLabel('left', "Counts", units=recvUnit['Count'])
-                    self.Mplot.setLabel('left', "Moist.", units=recvUnit['Moist'])
+                    for v in self.plotVariable:
+                        self.plot[v].setLabel('left', v, units=recvUnit[v])
+#                    self.Tplot.setLabel('left', "Counts", units=recvUnit['Count'])
+#                    self.Mplot.setLabel('left', "Moist.", units=recvUnit['Moist'])
                     self.firstLoop = False
 
                 self.lblCounts.setText("Temperature: {} {}".format(newData['T'],recvUnit['T']))

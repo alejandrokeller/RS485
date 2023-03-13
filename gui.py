@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 #
 # listens to a TCP broadcast and displays data using Ppyqt widgets
-# provides also a buttons interface for interacting with the 
-# measurement instrument
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 import pyqtgraph as pg
@@ -69,7 +67,6 @@ class Visualizer(object):
         self.firstLoop = True
         self.numSamples = 1200 
         self.datastring = ""
-        self.deltaT = 0.5
         self.timeKey = 'Date/Time'
 
         # variables to keep for front end
@@ -132,10 +129,12 @@ class Visualizer(object):
         try: 
             self.datastring = self.connection.recv(1024).decode()
 
-            # if two points were read
+            # if more than one datapoint was received keep only the first one.
+            # Only affects the GUI. All points are saved by logger.py 
             two_points = self.datastring.find('][')
             if two_points > 0:
                     self.datastring = self.datastring[0:two_points+1]
+
             recvData = {}
             recvUnit = {}
             if self.datastring:

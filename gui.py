@@ -66,6 +66,7 @@ class Visualizer(object):
         pg.setConfigOption('foreground', 'w')
 
         #init data structure
+        self.firstLoop = True
         self.numSamples = 1200 
         self.datastring = ""
         self.deltaT = 0.5
@@ -78,25 +79,15 @@ class Visualizer(object):
             self.timeKey
             ]
         
-        self.units = [
-            "°C",       # T
-            "vol%",     # Moist
-            "-",        # Count
-            "-"         # time
-            ]
-
-        self.initValues = [
-            0.0,     # T
-            0.0,     # Moist
-            0.0,     # Count
-            timestamp()
-            ]
-
-        zeroDict = dict(zip(self.keys, self.initValues))
-
-        self.unitsDict = dict(zip(self.keys, self.units))
+#        self.units = [
+#            "°C",       # T
+#            "vol%",     # Moist
+#            "-",        # Count
+#            "-"         # self.timeKey
+#            ]
+#
+#        self.unitsDict = dict(zip(self.keys, self.units))
         self.df = pd.DataFrame(columns=self.keys)
-#        self.df = pd.concat([self.df, pd.DataFrame([zeroDict]*self.numSamples)],ignore_index=True)
 
         # setup plots
         self.pen = pg.mkPen('y', width=1)
@@ -104,14 +95,14 @@ class Visualizer(object):
         self.Tplot = pg.PlotWidget(axisItems={'bottom':TimeAxisItem(orientation='bottom')})
         self.Tplot.addLegend()
 #        self.Tplot.setRange(yRange=[0, 900])
-        self.Tplot.setLabel('left', "Counts", units=self.unitsDict['Count'])
+#        self.Tplot.setLabel('left', "Counts", units=self.unitsDict['Count'])
         self.Tplot.setLabel('bottom', "Time")
         self.Tplot.showGrid(False, True)
         self.Tcurve = self.Tplot.plot([], [], pen=self.pen)
 
         self.Mplot = pg.PlotWidget(axisItems={'bottom':TimeAxisItem(orientation='bottom')})
-        self.Mplot.setRange(yRange=[50, 100])
-        self.Mplot.setLabel('left', "Moist.", units=self.unitsDict['Moist'])
+#        self.Mplot.setRange(yRange=[50, 100])
+#        self.Mplot.setLabel('left', "Moist.", units=self.unitsDict['Moist'])
         self.Mplot.setLabel('bottom', "Time")
         self.Mplot.showGrid(False, True)
         self.Mcurve = self.Mplot.plot([], [], pen=self.pen)
@@ -182,7 +173,12 @@ class Visualizer(object):
                 self.Tcurve.setData(self.df[self.timeKey], self.df['Count'])
                 self.Mcurve.setData(self.df[self.timeKey], self.df['Moist'])
 
-                self.lblCounts.setText("Temperature: {} degC".format(newData['T']))
+                if self.firstLoop:
+                    self.Tplot.setLabel('left', "Counts", units=recvUnit['Count'])
+                    self.Mplot.setLabel('left', "Moist.", units=recvUnit['Moist'])
+                    self.firstLoop = False
+
+                self.lblCounts.setText("Temperature: {} {}".format(newData['T'],recvUnit['T']))
 
         except KeyboardInterrupt:
             log_message("LOGGER", "aborted by user!")

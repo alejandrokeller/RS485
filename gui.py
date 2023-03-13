@@ -67,53 +67,52 @@ class Visualizer(object):
         self.numSamples = 1200 
         self.datastring = ""
         self.deltaT = 0.5
+        self.timeKey = 'Date/Time'
 
         self.keys = [
             "T",
             "Moist",
-            "Count"
+            "Count",
+            self.timeKey
             ]
         
         self.units = [
             "°C",       # T
             "vol%",     # Moist
-            "-"         # Count
+            "-",        # Count
+            "-"         # time
             ]
 
         self.initValues = [
             0.0,     # T
             0.0,     # Moist
-            0.0      # Count
+            0.0,     # Count
+            datetime.datetime.now()
             ]
 
         zeroDict = dict(zip(self.keys, self.initValues))
 
-#        self.t = np.linspace(datetime.now() - datetime.timedelta(minutes=10), datetime.now(), self.numSamples)
-        self.t = np.linspace(-self.deltaT*self.numSamples, 0, self.numSamples)
-
-
         self.unitsDict = dict(zip(self.keys, self.units))
         self.df = pd.DataFrame(columns=self.keys)
-        self.df = pd.concat([self.df, pd.DataFrame([zeroDict]*self.numSamples)],ignore_index=True)
+#        self.df = pd.concat([self.df, pd.DataFrame([zeroDict]*self.numSamples)],ignore_index=True)
 
         # setup plots
         self.pen = pg.mkPen('y', width=1)
 
-###        self.Tplot = self.win.addPlot(row=0, col=0, title="")
-        self.Tplot = pg.PlotWidget()
+        self.Tplot = pg.PlotWidget(axisItems={'bottom':pg.DateAxisItem()})
         self.Tplot.addLegend()
 #        self.Tplot.setRange(yRange=[0, 900])
         self.Tplot.setLabel('left', "Count", units='-')
         self.Tplot.setLabel('bottom', "t")
         self.Tplot.showGrid(False, True)
-        self.Tcurve = self.Tplot.plot(self.t, self.df['Count'], pen=self.pen)
+        self.Tcurve = self.Tplot.plot([], [], pen=self.pen)
 
         self.Mplot = pg.PlotWidget()
         self.Mplot.setRange(yRange=[50, 100])
         self.Mplot.setLabel('left', "Moist.", units='vol%')
         self.Mplot.setLabel('bottom', "t")
         self.Mplot.showGrid(False, True)
-        self.Mcurve = self.Mplot.plot(self.t, self.df['Moist'], pen=self.pen)
+        self.Mcurve = self.Mplot.plot([], [], pen=self.pen)
 
 #####################################################################
 
@@ -157,19 +156,29 @@ class Visualizer(object):
                         recvUnit[v['var']] = v['unit']
 
             if recvData:
-               #Eliminate first element
-                self.df = self.df[1:self.numSamples]
-                newData = self.df.iloc[[-1]].to_dict('records')[0]
+                newData = {}
+ 
                 for k in self.keys:
-                    try:
-                        newData[k] = recvData[k]
-                    except:
-                        print("could not extract ", k, " value from ", dataDict)
+                    if k != self.timeKey:
+                        try:
+                           newData[k] = recvData[k]
+                        except:
+                           print("could not extract ", k, " value from ", dataDict)
+                    else:
+                        newData[k] = datetime.datetime.now()
 
-                self.df = pd.concat([self.df, pd.DataFrame([newData])],ignore_index=True)
+                # reshape dataframe
+                dfRowCount = len(self.df.index)
+                if dfRowCount >= self.numSamples:
+                    self.df = self.df.tail(self.numSamples-1)
+                    self.df = pd.concat([self.df, pd.DataFrame([newData])],ignore_index=True)
+                elif dfRowCount == 0:
+                    self.df = pd.DataFrame.from_dict([newData])
+                else:
+                    self.df = pd.concat([self.df, pd.DataFrame([newData])],ignore_index=True)
 
-                self.Tcurve.setData(self.t, self.df['Count'])
-                self.Mcurve.setData(self.t, self.df['Moist'])
+                self.Tcurve.setData(self.df[self.timeKey], self.df['Count'])
+                self.Mcurve.setData(self.df[self.timeKey], self.df['Moist'])
 
                 self.lblCounts.setText("Temperature: {} degC".format(newData['T']))
 

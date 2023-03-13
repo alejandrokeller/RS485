@@ -1,62 +1,59 @@
 # RS485logger
 
-
-
 ## Description
 
 This application is written to monitor diferent variables from an RS485 capable device.
 
-Based on the (Waveshare USB to RS485B)[https://www.waveshare.com/wiki/USB_TO_RS485_(B)]
+Based on the [Waveshare USB to RS485B](https://www.waveshare.com/wiki/USB_TO_RS485_(B))
 
 Currently supporting these sensors: 
-- Truebner AquaFlex and SMT100 soil mosture sensors (see e.g. (SMT100 Instruction Manual)[https://www.truebner.de/assets/download/Anleitung_SMT100_V1.1.pdf])
-- Ionscience Falco Pumped Gas Detector  
+- Truebner AquaFlex and SMT100 soil mosture sensors (see e.g. [SMT100 Instruction Manual](https://www.truebner.de/assets/download/Anleitung_SMT100_V1.1.pdf)).
+- Ionscience [Falco Pumped Gas Detector series](https://ionscience.com/en/products/products-falco-fixed-voc-gas-detector-pumped-0-10ppm/).
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+Tested using python3.9.2 on a Raspberry Pi 4B
 
 ## Installation
 
-Taking RPI as an example, you can use the default driver. After connecting the device, you can use the following command to query the serial device name:
+1. Clone the repository. In this example we are clonning to `/logger`):   
+   ```
+   sudo git clone https://gitlab.fhnw.ch/alejandrokeller/rs485logger.git /logger
+   ```
+2. Install requirements:
 
-```
-ls /dev/tty*
-```
+   ```
+   cd /logger
+   sudo pip install -r requirements.txt
+   ```
+3. Conect the  usb to RS485B converter. In the raspberry pi, the usb to RS485B converter works using the default (already installed) driver. You can find out the converter serial port by running the following command before and after connecting the adapter:
 
-You can then access the serial device using, e.g., [minicom](https://www.waveshare.com/wiki/Raspberry_Pi_Tutorial_Series:_Serial):
+   ```
+   ls /dev/tty*
+   ```
+   If you want to test the device, ycou can use, e.g., [minicom](https://www.waveshare.com/wiki/Raspberry_Pi_Tutorial_Series:_Serial):
 
-```
-minicom -b 9600 -D /dev/ttyACM0
-```
+   ```
+   minicom -b 9600 -D /dev/ttyUSB0
+   ```
+   - -D Specify the device, overriding the value given in the configuration file. The followed device, `/dev/ttyUSB0`, is the serial device specified by -D
+   - The baud rate of serial is set to 115200 by default, which can be changed by `-b 9600`. You can read the detailed manual with the command man minicom
 
-- -D Specify the device, overriding the value given in the configuration file. The followed device, `/dev/ttyACM0`, is the serial device specified by -D
-- The baud rate of serial is set to 115200 by default, which can be changed by `-b 9600`. You can read the detailed manual with the command man minicom
-
+4. Create the the data and logging directories:
+   ```
+   mkdir  ~/logger/ ~/logger/logs
+   ```
+5. Modify `/logger/config.ini`:
+   * `PORT: '/dev/ttyUSB0'` (or the serail address from step 3)
+   * `ADDRESS: 3` (or the MODBUS address of the sensor)
+   * `LOGS_PATH: '/home/pi/logger/logs'` (or the directory created in step 4)
+   * `DATA_PATH: '/home/pi/logger/data'` (or the directory created in step 4)
+   * `HOST_NAME: '127.0.0.1'` (The ip used for the gui intgerface. Leave it like this if the logger and the gui are on the same computer)
+   * `HOST_PORT: 10000` (The port for data transmission to the gui. 10000 is usually free. Some firewalss may block this port if transmitting to another computer. Check your system documentation)
+   * `BUFFER: 120` (Lines to be captured before writting to the data file. Example: 120 for a system with 2 Hz rate to write only once a minute)
+   * `DATAFILE: 'rs485data'` (base name for datafile. Date and time of creation will be appended)
+   * `EXTENSION: '.csv'` (extension for the datafile. Per default the system creates columns separated with tab)
 
 ## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+comming soon...
 
 ## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Please contact me under alejandro.keller@fhnw.ch for feedback or issues with this repository.

@@ -161,7 +161,7 @@ class Visualizer(object):
 
         except KeyboardInterrupt:
             log_message("GUI", "aborted by user!")
-            print(self.datastring)
+            self.sock.close()
             exit()
 
         except:
@@ -174,7 +174,7 @@ class Visualizer(object):
             
 ##            raise
 
-    def self.closeSocket(self):
+    def closeSocket(self):
         log_message("GUI", "Window is clossing!")
         log_message("GUI", "Closing the active socket")
         self.sock.close()

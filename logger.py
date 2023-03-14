@@ -5,6 +5,7 @@ import datetime, time
 import configparser
 import json
 import minimalmodbus
+import socket
 
 ## Import function for sending data to gui.py
 from utils import send_string, log_message
@@ -122,6 +123,10 @@ while 1:
        else:
            log_message("LOGGER", "No data file in use...")
 
+       if sock:
+           log_message("LOGGER", "Closing socket...")
+           sock.shutdown(socket.SHUT_RDWR)
+           sock.close()
        log_message("LOGGER", "bye...")
        break
 

@@ -35,6 +35,7 @@ class Visualizer(object):
         self.app = QtWidgets.QApplication([])
         pg.setConfigOptions(antialias=False)
         pg.setConfigOption('foreground', 'w')
+        self.app.aboutToQuit.connect(self.closeSocket) # exit Handle that closes the communication socket
 
         #init data structure
         self.firstLoop = True
@@ -159,19 +160,25 @@ class Visualizer(object):
                 self.lblTextData.setText("Temperature: {} {}".format(newData['T'],recvUnit['T']))
 
         except KeyboardInterrupt:
-            log_message("LOGGER", "aborted by user!")
+            log_message("GUI", "aborted by user!")
             print(self.datastring)
             exit()
 
         except:
-            log_message("LOGGER", "    --- error type: " + str(sys.exc_info()[0]))
-            log_message("LOGGER", "    --- error value: " + str(sys.exc_info()[1]))
+            log_message("GUI", "    --- error type: " + str(sys.exc_info()[0]))
+            log_message("GUI", "    --- error value: " + str(sys.exc_info()[1]))
             exec_tb = sys.exc_info()[2]
             fname = os.path.split(exec_tb.tb_frame.f_code.co_filename)[1]
-            log_message("LOGGER", "    --- error File: {}".format(fname))
-            log_message("LOGGER", "    --- error line: {}".format(exec_tb.tb_lineno))
+            log_message("GUI", "    --- error File: {}".format(fname))
+            log_message("GUI", "    --- error line: {}".format(exec_tb.tb_lineno))
             
 ##            raise
+
+    def self.closeSocket(self):
+        log_message("GUI", "Window is clossing!")
+        log_message("GUI", "Closing the active socket")
+        self.sock.close()
+        log_message("GUI", "bye...")
 
 ## Start Qt event loop unless running in interactive mode or using pyside.
 if __name__ == '__main__':

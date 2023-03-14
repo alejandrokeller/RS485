@@ -68,14 +68,20 @@ x=''                # data buffer (string) for writing to datafile every n cycle
 data_string = ''    # string of new data (only last cycle)
 header_string = ''  # header to be used for new datafile (refreshed every cycle)
 
-try:
-#    sensor = Falco(sensor_port, sensor_address)
-    sensor = SMT100(sensor_port, sensor_address)
-except:
-    log_message("LOGGER",
+sensor = False
+
+while not sensor:
+    try:
+    #    sensor = Falco(sensor_port, sensor_address)
+        sensor = SMT100(sensor_port, sensor_address)
+    except:
+        log_message("LOGGER",
                 "Could not open adress '{}' at port '{}'".format(
                 sensor_address, sensor_port))
-    exit()
+        log_message("LOGGER", "Waiting 5 seconds...")
+        time.sleep(5)
+
+ #        exit()
 
 while 1:
     daytime = time.strftime("%H:%M:%S")

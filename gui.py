@@ -15,35 +15,8 @@ import configparser
 
 from utils import TimeAxisItem, timestamp, log_message
 
+# path where the config.ini file is located
 base_path = os.path.abspath(os.path.dirname(sys.argv[0]))
-
-# def log_message(module, msg):
-#         """
-#         Logs a message with standard format
-#         """
-#         timestamp = time.strftime("%Y.%m.%d-%H:%M:%S ")
-#         log_message = "- [{0}] :: {1}"
-#         log_message = timestamp + log_message.format(module,msg)
-#         print(log_message, file=sys.stderr)
-
-# def send_string(line, server_address, sock = 0):
-#     # Sends a string to through a TCP socket
-
-#     # Send data
-#     try:
-#         if not sock:
-#             # Create a TCP/IP socket
-#             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#             sock.connect(server_address)
-            
-#         sock.sendall(line.encode())
-#     except socket.error:
-# #        print("nobody listening", file = sys.stderr)
-#         sock.close()
-# #        print('closing socket', file = sys.stderr)
-#         sock = 0
-
-#     return sock
 
 class Visualizer(object):
     def __init__(self, host_name='localhost', host_port=10000):
@@ -82,7 +55,8 @@ class Visualizer(object):
             "Count",
             "Moist"
         ]
-
+        
+        # dataframe that will hold the data
         self.df = pd.DataFrame(columns=self.keys)
 
         # setup plots
@@ -112,6 +86,7 @@ class Visualizer(object):
         ## Create a QVBox layout to manage the plots
         self.plotLayout = QtWidgets.QVBoxLayout()
 
+        ## add the plots
         for v in self.plotVariable:
            self.plotLayout.addWidget(self.plot[v])
         self.plotLayout.addWidget(self.lblTextData)
@@ -126,7 +101,8 @@ class Visualizer(object):
 
     def update(self):
 
-        try: 
+        try:
+            # wait for new data to arrive
             self.datastring = self.connection.recv(1024).decode()
 
             # if more than one datapoint was received keep only the first one.
@@ -135,6 +111,7 @@ class Visualizer(object):
             if two_points > 0:
                     self.datastring = self.datastring[0:two_points+1]
 
+            # decode json string into a value and a units dictionaries
             recvData = {}
             recvUnit = {}
             if self.datastring:
@@ -143,6 +120,8 @@ class Visualizer(object):
                         recvData[v['var']] = v['val']
                         recvUnit[v['var']] = v['unit']
 
+            # reduce the data to the subset required by the GUI
+            # then update the dataframe and the front end
             if recvData:
                 newData = {}
  
@@ -153,9 +132,10 @@ class Visualizer(object):
                         except:
                            print("could not extract ", k, " value from ", dataDict)
                     else:
-                        newData[k] = timestamp() #datetime.datetime.now()
+                        # add the time as variable using the local time
+                        newData[k] = timestamp()
 
-                # reshape dataframe
+                # reshape dataframe to a maximum of self.numSamples points
                 dfRowCount = len(self.df.index)
                 if dfRowCount >= self.numSamples:
                     self.df = self.df.tail(self.numSamples-1)
@@ -165,6 +145,7 @@ class Visualizer(object):
                 else:
                     self.df = pd.concat([self.df, pd.DataFrame([newData])],ignore_index=True)
 
+                # update the plots
                 for v in self.plotVariable:
                     self.curve[v].setData(self.df[self.timeKey], self.df[v])
 
@@ -174,6 +155,7 @@ class Visualizer(object):
                         self.plot[v].setLabel('left', v, units=recvUnit[v])
                     self.firstLoop = False
 
+                # format the text field(s)
                 self.lblTextData.setText("Temperature: {} {}".format(newData['T'],recvUnit['T']))
 
         except KeyboardInterrupt:

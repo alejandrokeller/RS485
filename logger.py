@@ -28,18 +28,11 @@ def create_data_file(path, header, name):
 
     return newname
 
-# def log_message(module, msg):
-#         """
-#         Logs a message with standard format
-#         """
-#         timestamp = time.strftime("%Y.%m.%d-%H:%M:%S ")
-#         log_message = "- [{0}] :: {1}"
-#         log_message = timestamp + log_message.format(module,msg)
-#         print(log_message, file=sys.stderr)
+## Start logging script ##
 
-## Start logging script
+# directory for location of config.ini
 base_path = os.path.abspath(os.path.dirname(sys.argv[0]))
-sys.path.append(base_path + '/')
+#sys.path.append(base_path + '/')
 
 # READ ini file
 config_file = base_path + '/config.ini'
@@ -67,12 +60,12 @@ sock = 0
 log_message("LOGGER", 'starting up on %s port %s' %server_address)
 
 # Variables
-counter = 0
-filename = basefilename + extension
-filedate = False
-x=''
-data_string = ''
-header_string = ''
+counter = 0         # counter for writing data to datafile every n cycles
+filename = basefilename + extension # datafile name (date/time will be added)
+filedate = False    # date of creation of current datafile
+x=''                # data buffer (string) for writing to datafile every n cycles
+data_string = ''    # string of new data (only last cycle)
+header_string = ''  # header to be used for new datafile (refreshed every cycle)
 
 try:
 #    sensor = Falco(sensor_port, sensor_address)
@@ -85,25 +78,32 @@ except:
 
 while 1:
     daytime = time.strftime("%H:%M:%S")
+    
+    # initialize the datafile header data
     columns_string = 'daytime'
     units_string = 'hh:mm:ss'
     
     try:
       data_string += daytime
+
+      # receive and decode new data
       data = sensor.readline()
       json_string = json.dumps(data)
       for dic in data:
          data_string += '\t' +  repr(dic['val'])
          columns_string += '\t' + dic['var']
          units_string   += '\t' + dic['unit']
+
+      data_string += '\n' 
          
+      # put together the file header
       header_string = columns_string + '\n' + units_string + '\n'
-      data_string += '\n'
       
       if json_string:
         # transmit TCP data
         sock = send_string(json_string, server_address, sock)
 
+        # update buffer and counter
         x+= data_string
         counter+=1;
 
@@ -145,6 +145,7 @@ while 1:
        filedate = newdate
     
     if filedate:
+
         # Create a new file at midnight
         if newdate.day != filedate.day:
            fo = open(f, "a")
@@ -155,6 +156,8 @@ while 1:
            filedate = newdate
            f = create_data_file(data_path, header=header_string, name=filename)
            log_message("LOGGER", "Writing to Datafile: " + f)
+
+        # write and clear buffer if buffersize was reached
         elif counter >= buffersize:
            fo = open(f, "a")
            fo.write(x)

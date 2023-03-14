@@ -7,7 +7,7 @@ import json
 import minimalmodbus
 
 ## Import function for sending data to gui.py
-from gui import send_string
+from utils import send_string, log_message
 
 ## Import instrument driver
 from falco import Falco
@@ -28,15 +28,14 @@ def create_data_file(path, header, name):
 
     return newname
 
-def log_message(module, msg):
-        """
-        Logs a message with standard format
-        """
-        timestamp = time.strftime("%Y.%m.%d-%H:%M:%S ")
-        log_message = "- [{0}] :: {1}"
-        log_message = timestamp + log_message.format(module,msg)
-        print(log_message, file=sys.stderr)
-
+# def log_message(module, msg):
+#         """
+#         Logs a message with standard format
+#         """
+#         timestamp = time.strftime("%Y.%m.%d-%H:%M:%S ")
+#         log_message = "- [{0}] :: {1}"
+#         log_message = timestamp + log_message.format(module,msg)
+#         print(log_message, file=sys.stderr)
 
 ## Start logging script
 base_path = os.path.abspath(os.path.dirname(sys.argv[0]))
@@ -48,8 +47,8 @@ if os.path.exists(config_file):
     config = configparser.ConfigParser()
     config.read(config_file)
     
-    falco_port          = eval(config['GENERAL_SETTINGS']['PORT'])
-    falco_address       = eval(config['GENERAL_SETTINGS']['ADDRESS'])
+    sensor_port          = eval(config['GENERAL_SETTINGS']['PORT'])
+    sensor_address       = eval(config['GENERAL_SETTINGS']['ADDRESS'])
     data_path           = eval(config['GENERAL_SETTINGS']['DATA_PATH']) + '/'
     
     server_name         = eval(config['TCP_INTERFACE']['HOST_NAME'])
@@ -62,7 +61,7 @@ else:
     print( "Could not find the configuration file: {}".format(config_file) , file = sys.stderr)
     exit()
 
-# Connect the socket to the port where the server is listening
+# Socket information in line to the port where the server is listening
 server_address = (server_name, server_port)
 sock = 0
 log_message("LOGGER", 'starting up on %s port %s' %server_address)
@@ -76,12 +75,12 @@ data_string = ''
 header_string = ''
 
 try:
-#    sensor = Falco(falco_port, falco_address)
-    sensor = SMT100(falco_port, falco_address)
+#    sensor = Falco(sensor_port, sensor_address)
+    sensor = SMT100(sensor_port, sensor_address)
 except:
     log_message("LOGGER",
                 "Could not open adress '{}' at port '{}'".format(
-                falco_address, falco_port))
+                sensor_address, sensor_port))
     exit()
 
 while 1:

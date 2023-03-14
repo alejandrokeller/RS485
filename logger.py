@@ -52,7 +52,7 @@ if os.path.exists(config_file):
     basefilename        = eval(config['LOGGER']['DATAFILE'])
     extension           = eval(config['LOGGER']['EXTENSION'])
 else:
-    print( "Could not find the configuration file: {}".format(config_file) , file = sys.stderr)
+    log_message("GUI", "Could not find the configuration file: {}".format(config_file))
     exit()
 
 # Socket information in line to the port where the server is listening

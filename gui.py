@@ -25,14 +25,6 @@ class Visualizer(object):
         self.host_name = host_name
         self.host_port = host_port
         self.initSocket()
-        # self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Create a TCP/IP socket
-        # self.server_address = (host_name, host_port)
-        # print('starting up on {}'.format(self.server_address), file=sys.stderr)
-        # self.sock.bind(self.server_address) # Bind the socket to the port
-        # self.sock.listen(1) # Listen for incoming connections
-        # print('waiting for a connection', file=sys.stderr)
-        # self.connection, self.client_address = self.sock.accept() # Wait for a connection
-        # print('connection from {}'.format(self.client_address), file=sys.stderr)
 
         # init pyqt
         self.app = QtWidgets.QApplication([])
@@ -108,6 +100,12 @@ class Visualizer(object):
         try:
             # wait for new data to arrive
             self.datastring = self.connection.recv(1024).decode()
+            if not self.datastring:
+                log_message("GUI", "Nothing received!")
+                log_message("GUI", "Trying to reconnect.")
+                self.connection, self.client_address = self.sock.accept() # Wait for a connection
+                log_message("GUI",'connection from {}'.format(self.client_address))
+
 
             # if more than one datapoint was received keep only the first one.
             # Only affects the GUI. All points are saved by logger.py 
@@ -134,7 +132,7 @@ class Visualizer(object):
                         try:
                            newData[k] = recvData[k]
                         except:
-                           print("could not extract ", k, " value from ", dataDict)
+                           log_message("GUI","could not extract {} value from {}".format(k, dataDict))
                     else:
                         # add the time as variable using the local time
                         newData[k] = timestamp()
@@ -180,12 +178,12 @@ class Visualizer(object):
         # init socket
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Create a TCP/IP socket
         self.server_address = (self.host_name, self.host_port)
-        print('starting up on {}'.format(self.server_address), file=sys.stderr)
+        log_message("GUI",'starting up on {}'.format(self.server_address))
         self.sock.bind(self.server_address) # Bind the socket to the port
         self.sock.listen(1) # Listen for incoming connections
-        print('waiting for a connection', file=sys.stderr)
+        log_message("GUI",'waiting for a connection')
         self.connection, self.client_address = self.sock.accept() # Wait for a connection
-        print('connection from {}'.format(self.client_address), file=sys.stderr)
+        log_message("GUI",'connection from {}'.format(self.client_address))
 
     def closeSocket(self):
         log_message("GUI", "Window is clossing!")
@@ -205,7 +203,7 @@ if __name__ == '__main__':
         host_name = eval(config['TCP_INTERFACE']['HOST_NAME'])
         host_port = eval(config['TCP_INTERFACE']['HOST_PORT'])
     else:
-        print("Could not find the configuration file: {}".format(config_file), file=sys.stderr)
+        log_message("GUI","Could not find the configuration file: {}".format(config_file))
         exit()
 
 

@@ -22,14 +22,17 @@ class Visualizer(object):
     def __init__(self, host_name='localhost', host_port=10000):
         
         # init socket
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Create a TCP/IP socket
-        self.server_address = (host_name, host_port)
-        print('starting up on {}'.format(self.server_address), file=sys.stderr)
-        self.sock.bind(self.server_address) # Bind the socket to the port
-        self.sock.listen(1) # Listen for incoming connections
-        print('waiting for a connection', file=sys.stderr)
-        self.connection, self.client_address = self.sock.accept() # Wait for a connection
-        print('connection from {}'.format(self.client_address), file=sys.stderr)
+        self.host_name = host_name
+        self.host_port = host_port
+        self.initSocket()
+        # self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Create a TCP/IP socket
+        # self.server_address = (host_name, host_port)
+        # print('starting up on {}'.format(self.server_address), file=sys.stderr)
+        # self.sock.bind(self.server_address) # Bind the socket to the port
+        # self.sock.listen(1) # Listen for incoming connections
+        # print('waiting for a connection', file=sys.stderr)
+        # self.connection, self.client_address = self.sock.accept() # Wait for a connection
+        # print('connection from {}'.format(self.client_address), file=sys.stderr)
 
         # init pyqt
         self.app = QtWidgets.QApplication([])
@@ -173,6 +176,16 @@ class Visualizer(object):
             log_message("GUI", "    --- error line: {}".format(exec_tb.tb_lineno))
             
 ##            raise
+    def initSocket(self):
+        # init socket
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # Create a TCP/IP socket
+        self.server_address = (self.host_name, self.host_port)
+        print('starting up on {}'.format(self.server_address), file=sys.stderr)
+        self.sock.bind(self.server_address) # Bind the socket to the port
+        self.sock.listen(1) # Listen for incoming connections
+        print('waiting for a connection', file=sys.stderr)
+        self.connection, self.client_address = self.sock.accept() # Wait for a connection
+        print('connection from {}'.format(self.client_address), file=sys.stderr)
 
     def closeSocket(self):
         log_message("GUI", "Window is clossing!")

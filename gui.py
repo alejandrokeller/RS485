@@ -13,37 +13,37 @@ import datetime, time
 import json
 import configparser
 
-from utils import TimeAxisItem, timestamp
+from utils import TimeAxisItem, timestamp, log_message
 
 base_path = os.path.abspath(os.path.dirname(sys.argv[0]))
 
-def log_message(module, msg):
-        """
-        Logs a message with standard format
-        """
-        timestamp = time.strftime("%Y.%m.%d-%H:%M:%S ")
-        log_message = "- [{0}] :: {1}"
-        log_message = timestamp + log_message.format(module,msg)
-        print(log_message, file=sys.stderr)
+# def log_message(module, msg):
+#         """
+#         Logs a message with standard format
+#         """
+#         timestamp = time.strftime("%Y.%m.%d-%H:%M:%S ")
+#         log_message = "- [{0}] :: {1}"
+#         log_message = timestamp + log_message.format(module,msg)
+#         print(log_message, file=sys.stderr)
 
-def send_string(line, server_address, sock = 0):
-    # Sends a string to through a TCP socket
+# def send_string(line, server_address, sock = 0):
+#     # Sends a string to through a TCP socket
 
-    # Send data
-    try:
-        if not sock:
-            # Create a TCP/IP socket
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.connect(server_address)
+#     # Send data
+#     try:
+#         if not sock:
+#             # Create a TCP/IP socket
+#             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#             sock.connect(server_address)
             
-        sock.sendall(line.encode())
-    except socket.error:
-#        print("nobody listening", file = sys.stderr)
-        sock.close()
-#        print('closing socket', file = sys.stderr)
-        sock = 0
+#         sock.sendall(line.encode())
+#     except socket.error:
+# #        print("nobody listening", file = sys.stderr)
+#         sock.close()
+# #        print('closing socket', file = sys.stderr)
+#         sock = 0
 
-    return sock
+#     return sock
 
 class Visualizer(object):
     def __init__(self, host_name='localhost', host_port=10000):

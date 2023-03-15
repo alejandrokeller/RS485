@@ -57,9 +57,9 @@ class Visualizer(object):
              'plot': 0,
              'pen': 0},
             {'var': "T",
-             'tab': 2,
-             'plot': 0,
-             'pen': 0}
+             'tab': 1,
+             'plot': 1,
+             'pen': 2}
         ]
 
         # pen styles
@@ -73,16 +73,30 @@ class Visualizer(object):
         self.df = pd.DataFrame(columns=self.keys)
 
         # setup plots
-        self.plot = {}
         self.curve = {}
 
-        for index in range(len(self.plotVariabledataList)):
-            self.plot[index] = pg.PlotWidget(axisItems={'bottom':TimeAxisItem(orientation='bottom')})
-            #self.plot[V].setRange(yRange=[50, 100])
-            self.plot[index].addLegend()
-            self.plot[index].setLabel('bottom', "Time")
-            self.plot[index].showGrid(False, True)
-            self.curve[index] = self.plot[v].plot([], [], pen=self.pen)
+#        for index in range(len(self.plotVariable)):
+        lastTab  = max(self.plotVariable, key=lambda x:x['tab'])
+        self.plot = []
+        
+        lastPlot = max(self.plotVariable, key=lambda x:x['plot'])
+        
+        for t in range(lastTab['tab'] + 1):
+            self.plot.append([])
+            for p in range(lastPlot['plot'] + 1):
+                self.plot[t].append(pg.PlotWidget(
+                    axisItems={'bottom':TimeAxisItem(orientation='bottom')}))
+                #self.plot[t].setRange(yRange=[50, 100])
+                self.plot[t][p].addLegend()
+                self.plot[t][p].setLabel('bottom', "Time")
+                self.plot[t][p].showGrid(False, True)
+                
+        for index in range(len(self.plotVariable)):
+            p = self.plotVariable[index]['plot']
+            t = self.plotVariable[index]['tab']
+            self.curve[index] = self.plot[t][p].plot([], [],
+                                        pen=self.pen[self.plotVariable[index]['pen']],
+                                        name=self.plotVariable[index]['var'])
 
 #####################################################################
 
@@ -95,24 +109,27 @@ class Visualizer(object):
         self.lblTextData    = QtWidgets.QLabel("Counts: ")
 
         ## Creata tabs to manage plots
-        self.tabWidget = QtGui.QTabWidget()
-        self.tabContentLayout = []
+        self.tabWidget = QtWidgets.QTabWidget()
+        self.tabContentWidget = []
         self.tabLayout = []
 
         ### Create the tabs and plot layouts
-        maxTab = max(self.plotVariable, key=lambda x:x['tab'])
-        for index in range(maxTab + 1):
-            self.tabLayout[index] = QtGui.QVBoxLayout()
-            self.tabContentWidget[index] = QtGui.QWidget()
-            self.tabWidget.insegrtTab(self.tabContentWidget[index])
-            self.tabContentWidget[index].setLayout(self.tabLayout[index]
+        lastTab = max(self.plotVariable, key=lambda x:x['tab'])
+        for index in range(lastTab['tab'] + 1):
+            self.tabLayout.append(QtWidgets.QVBoxLayout())
+            self.tabContentWidget.append(QtWidgets.QWidget())
+            self.tabWidget.addTab(self.tabContentWidget[index], format(index))
+            self.tabContentWidget[index].setLayout(self.tabLayout[index])
 
         ## add the plots
-        for index in range(len(self.plotVariabledataList)):
-           self.tabLayout[self.plotVariabledataList[index]['tab']].addWidget(self.plot[index])
+        for index in range(len(self.plotVariable)):
+            p = self.plotVariable[index]['plot']
+            t = self.plotVariable[index]['tab'] 
+            self.tabLayout[self.plotVariable[index]['tab']].addWidget(
+                self.plot[t][p])
 
         ## Create a QHBox layout to manage the plots
-        self.centralLayout = QtWidgets.QHBoxLayout()
+        self.centralLayout = QtWidgets.QVBoxLayout()
         self.centralLayout.addWidget(self.tabWidget)
         self.centralLayout.addWidget(self.lblTextData)
 
@@ -173,15 +190,18 @@ class Visualizer(object):
                     self.df = pd.concat([self.df, pd.DataFrame([newData])],ignore_index=True)
 
                 # update the plots
-#                for v in self.plotVariable:
-#                    self.curve[v].setData(self.df[self.timeKey], self.df[v])
-                for index in range(len(self.plotVariabledataList)):
-                    self.curve[index].setData(self.df[self.timeKey], self.df[self.plotVariabledataList[index]['var']])
+                for index in range(len(self.plotVariable)):
+                    self.curve[index].setData(self.df[self.timeKey], self.df[self.plotVariable[index]['var']])
 
                 # modify y-axis to show variable name and units
                 if self.firstLoop:
-                    for v in self.plotVariable:
-                        self.plot[v].setLabel('left', v, units=recvUnit[v])
+                    for index in range(len(self.plotVariable)):
+                        p = self.plotVariable[index]['plot']
+                        t = self.plotVariable[index]['tab']
+                        self.plot[t][p].setLabel('left',
+                            self.plotVariable[index]['var'],
+                            units=recvUnit[self.plotVariable[index]['var']])
+                        
                     self.firstLoop = False
 
                 # format the text field(s)

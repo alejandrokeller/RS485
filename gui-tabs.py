@@ -19,7 +19,7 @@ from utils import TimeAxisItem, timestamp, log_message
 base_path = os.path.abspath(os.path.dirname(sys.argv[0]))
 
 class Visualizer(object):
-    def __init__(self, host_name='localhost', host_port=10000):
+    def __init__(self, host_name='localhost', host_port=10000, json_config=False):
         
         # init socket
         self.host_name = host_name
@@ -39,34 +39,25 @@ class Visualizer(object):
         self.timeKey = 'Date/Time'
 
         # variables to keep for front end
-        self.keys = [
-            "T",
-            "Moist",
-            "Count",
-            self.timeKey
-            ]
+        if not json_config:
+            json_config=basepath+'/gui-config.json'
 
-        # variables to plot (which tab, plot, and pen color to use)
-        self.plotVariable = [
-            {'var': "Count",
-             'tab': 0,
-             'plot': 0,
-             'pen': 0},
-            {'var': "Moist",
-             'tab': 1,
-             'plot': 0,
-             'pen': 0},
-            {'var': "T",
-             'tab': 1,
-             'plot': 1,
-             'pen': 2}
-        ]
+        with open(json_config, "r") as jsonfile:
+            json_data = json.load(jsonfile)
+            log_message("GUI","Imported configuration: {}".format(json_config))
 
+        self.keys = json_data['variables']
+        self.keys.append(self.timeKey)
+        self.plotVariable = json_data['plots']
+        self.tabLabel = json_data['tabslabels']
+        self.infoText = json_data['infotext']
+            
         # pen styles
         self.pen = [
             pg.mkPen('y', width=1),
             pg.mkPen('y', width=1, style=QtCore.Qt.DashLine),
-            pg.mkPen('r', width=1)
+            pg.mkPen('r', width=1),
+            pg.mkPen('r', width=1, style=QtCore.Qt.DashLine)
         ] 
         
         # dataframe that will hold the data
@@ -74,11 +65,8 @@ class Visualizer(object):
 
         # setup plots
         self.curve = {}
-
-#        for index in range(len(self.plotVariable)):
         lastTab  = max(self.plotVariable, key=lambda x:x['tab'])
-        self.plot = []
-        
+        self.plot = []        
         lastPlot = max(self.plotVariable, key=lambda x:x['plot'])
         
         for t in range(lastTab['tab'] + 1):
@@ -94,9 +82,12 @@ class Visualizer(object):
         for index in range(len(self.plotVariable)):
             p = self.plotVariable[index]['plot']
             t = self.plotVariable[index]['tab']
+            lbl = self.plotVariable[index].get('label')
+            if not lbl:
+                lbl = self.plotVariable[index]['var']
             self.curve[index] = self.plot[t][p].plot([], [],
                                         pen=self.pen[self.plotVariable[index]['pen']],
-                                        name=self.plotVariable[index]['var'])
+                                        name=lbl)
 
 #####################################################################
 
@@ -106,7 +97,7 @@ class Visualizer(object):
         self.widgets.showFullScreen()
 
         # text field to hold info from another variable
-        self.lblTextData    = QtWidgets.QLabel("Counts: ")
+        self.lblTextData    = QtWidgets.QLabel("")
 
         ## Creata tabs to manage plots
         self.tabWidget = QtWidgets.QTabWidget()
@@ -118,7 +109,11 @@ class Visualizer(object):
         for index in range(lastTab['tab'] + 1):
             self.tabLayout.append(QtWidgets.QVBoxLayout())
             self.tabContentWidget.append(QtWidgets.QWidget())
-            self.tabWidget.addTab(self.tabContentWidget[index], format(index))
+            if index < len(self.tabLabel):
+                lbl = self.tabLabel[index]
+            else:
+                lbl = "Tab &{}".format(index+1)
+            self.tabWidget.addTab(self.tabContentWidget[index], lbl)
             self.tabContentWidget[index].setLayout(self.tabLayout[index])
 
         ## add the plots
@@ -128,10 +123,15 @@ class Visualizer(object):
             self.tabLayout[self.plotVariable[index]['tab']].addWidget(
                 self.plot[t][p])
 
-        ## Create a QHBox layout to manage the plots
+        ## Create a QHBox layout for buttons and other info
+        self.infoLayout = QtWidgets.QHBoxLayout()
+        self.infoLayout.addWidget(self.lblTextData)
+
+        ## Create a QVBox layout to manage the tabs and other info
         self.centralLayout = QtWidgets.QVBoxLayout()
         self.centralLayout.addWidget(self.tabWidget)
-        self.centralLayout.addWidget(self.lblTextData)
+        self.centralLayout.addLayout(self.infoLayout)
+
 
         ## Display the widget as a new window
         self.widgets.setLayout(self.centralLayout)
@@ -205,7 +205,11 @@ class Visualizer(object):
                     self.firstLoop = False
 
                 # format the text field(s)
-                self.lblTextData.setText("Temperature: {} {}".format(newData['T'],recvUnit['T']))
+                infoData = []
+                for v in self.infoText['variables']:
+                    infoData.append(newData[v])
+                self.lblTextData.setText(
+                    self.infoText['text'].format(*infoData))
 
         except KeyboardInterrupt:
             log_message("GUI", "aborted by user!")
@@ -249,12 +253,13 @@ if __name__ == '__main__':
         config.read(config_file)
         host_name = eval(config['TCP_INTERFACE']['HOST_NAME'])
         host_port = eval(config['TCP_INTERFACE']['HOST_PORT'])
+        json_config = eval(config['GUI']['JSON_CONFIG'])
     else:
         log_message("GUI","Could not find the configuration file: {}".format(config_file))
         exit()
 
 
-    vis = Visualizer(host_name=host_name, host_port=host_port)
+    vis = Visualizer(host_name=host_name, host_port=host_port, json_config=json_config)
 
     timer = QtCore.QTimer()
     timer.timeout.connect(vis.update)

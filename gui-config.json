@@ -1,0 +1,8 @@
+{"variables": ["T", "Moist", "Count"],
+ "plots": [
+     {"var": "Count", "tab": 0, "plot": 0, "pen": 0, "label": "Counts"},
+     {"var": "Moist", "tab": 1, "plot": 0, "pen": 1},
+     {"var": "T", "tab": 1, "plot": 1, "pen": 2, "label": "Temperature"}],
+ "tabslabels": ["&Counts"],
+ "infotext": {"text": "Temperature: {} degC, Humidity {} %vol",
+              "variables": ["T","Moist"]}}

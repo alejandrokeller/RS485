@@ -1,0 +1,8 @@
+{"variables": ["VOC", "Voltage", "T", "RF", "Range"],
+ "plots": [
+     {"var": "VOC", "tab": 0, "plot": 0, "pen": 0, "label": "VOC"},
+     {"var": "Voltage", "tab": 1, "plot": 0, "pen": 1},
+     {"var": "T", "tab": 1, "plot": 1, "pen": 2, "label": "Sensor Temp."}],
+ "tabslabels": ["&VOC","&Other"],
+ "infotext": {"text": "Sensor temperature: {} degC, Correction Factor (RF): {}, Range: {} ppm",
+              "variables": ["T","RF","Range"]}}

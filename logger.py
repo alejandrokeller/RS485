@@ -10,9 +10,13 @@ import socket
 ## Import function for sending data to gui.py
 from utils import send_string, log_message
 
+# directory for location of config.ini
+base_path = os.path.abspath(os.path.dirname(sys.argv[0]))
+
 ## Import instrument driver
+sys.path.append(base_path + '/drivers/')
 from falco import Falco
-from smt100 import SMT100
+#from smt100 import SMT100
 
 ## Define some utility hfunctions
 
@@ -31,18 +35,14 @@ def create_data_file(path, header, name):
 
 ## Start logging script ##
 
-# directory for location of config.ini
-base_path = os.path.abspath(os.path.dirname(sys.argv[0]))
-#sys.path.append(base_path + '/')
-
 # READ ini file
 config_file = base_path + '/config.ini'
 if os.path.exists(config_file):
     config = configparser.ConfigParser()
     config.read(config_file)
     
-    sensor_port          = eval(config['GENERAL_SETTINGS']['PORT'])
-    sensor_address       = eval(config['GENERAL_SETTINGS']['ADDRESS'])
+    sensor_port         = eval(config['GENERAL_SETTINGS']['PORT'])
+    sensor_address      = eval(config['GENERAL_SETTINGS']['ADDRESS'])
     data_path           = eval(config['GENERAL_SETTINGS']['DATA_PATH']) + '/'
     
     server_name         = eval(config['TCP_INTERFACE']['HOST_NAME'])
@@ -72,8 +72,8 @@ sensor = False
 
 while not sensor:
     try:
-    #    sensor = Falco(sensor_port, sensor_address)
-        sensor = SMT100(sensor_port, sensor_address)
+        sensor = Falco(sensor_port, sensor_address)
+    #    sensor = SMT100(sensor_port, sensor_address)
     except:
         log_message("LOGGER",
                 "Could not open adress '{}' at port '{}'".format(

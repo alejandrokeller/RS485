@@ -10,10 +10,11 @@ class Falco( minimalmodbus.Instrument ):
     """
 
     def __init__(self, portname, slaveaddress):
-        minimalmodbus.Instrument.__init__(self, portname, slaveaddress, mode=minimalmodbus.MODE_RTU)
+        minimalmodbus.Instrument.__init__(self, portname, slaveaddress,
+                                          mode=minimalmodbus.MODE_RTU)
         
         #Make the settings explicit
-        self.serial.baudrate = 19200        # Baud
+        self.serial.baudrate = 9600        # Baud
         self.serial.bytesize = 8
         self.serial.parity   = minimalmodbus.serial.PARITY_NONE
         self.serial.stopbits = 1
@@ -33,7 +34,7 @@ class Falco( minimalmodbus.Instrument ):
 
     def get_temperature(self):
         """Return the sensor temperature in degC. 16 bit signet int, 1 Register"""
-        return self.read_register(108, signed = True)
+        return self.read_register(108, signed = True)/10.0
 
     def get_led(self):
         """Return the led brightness. 16 bit unsignet int [0-100], 1 Register"""
@@ -83,10 +84,10 @@ class Falco( minimalmodbus.Instrument ):
         """
         response = [
             {'var': 'VOC',
-            'val': self.get_voc(),
+            'val': round(self.get_voc(),2),
             'unit': self.get_unit()},
             {'var': 'Voltage',
-            'val': self.get_voltage(),
+            'val': round(self.get_voltage(),1),
             'unit': 'mV'},
             {'var': 'T',
             'val': self.get_temperature(),
@@ -106,11 +107,4 @@ class Falco( minimalmodbus.Instrument ):
         ]
 
         return response
-
-
-
-        
-
-    
-
 

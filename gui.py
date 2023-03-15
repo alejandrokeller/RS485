@@ -28,6 +28,7 @@ class Visualizer(object):
 
         # init pyqt
         self.app = QtWidgets.QApplication([])
+        self.app.setStyle('cleanlooks')
         pg.setConfigOptions(antialias=False)
         pg.setConfigOption('foreground', 'w')
         self.app.aboutToQuit.connect(self.closeSocket) # exit Handle that closes the communication socket

@@ -95,7 +95,11 @@ The JSON dictionaries are organized as following:
 * `"tabslabels"` text to display on each tab. Numbers are asigned for the tabs withoiut names.
 * `"infotext"`: Text to be display bellow the tabs. This text is used in the same way as the python format method for strings.
 
-Here is the result of the `config.falco.json` file:
+The `config.falco.json` produces these two tabs:
+
+![tab1](./pics/tab1.png)
+
+![tab2](./pics/tab2.png)
  
 
 ## Support

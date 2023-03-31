@@ -1,4 +1,5 @@
-{"variables": ["VOC", "Voltage", "T", "RF", "Range"],
+{"buffer": 3000,
+"variables": ["VOC", "Voltage", "T", "RF", "Range"],
  "plots": [
      {"var": "VOC", "tab": 0, "plot": 0, "pen": 0, "label": "VOC"},
      {"var": "Voltage", "tab": 1, "plot": 0, "pen": 1},

@@ -34,8 +34,7 @@ class Visualizer(object):
         self.app.aboutToQuit.connect(self.closeSocket) # exit Handle that closes the communication socket
 
         #init data structure
-        self.firstLoop = True
-        self.numSamples = 1200 
+        self.firstLoop = True 
         self.datastring = ""
         self.timeKey = 'Date/Time'
 
@@ -47,6 +46,7 @@ class Visualizer(object):
             json_data = json.load(jsonfile)
             log_message("GUI","Imported configuration: {}".format(json_config))
 
+        self.numSamples = json_data['buffer']
         self.keys = json_data['variables']
         self.keys.append(self.timeKey)
         self.plotVariable = json_data['plots']

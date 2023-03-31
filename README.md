@@ -97,9 +97,9 @@ The JSON dictionaries are organized as following:
 
 The `config.falco.json` produces these two tabs:
 
-![tab1](./pics/tab1.png)
+![tab1](./pics/tab2.png)
 
-![tab2](./pics/tab2.png)
+![tab2](./pics/tab1.png)
  
 
 ## Support

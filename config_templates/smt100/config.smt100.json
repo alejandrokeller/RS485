@@ -1,4 +1,5 @@
-{"variables": ["T", "Moist", "Count"],
+{"buffer": 1200,
+"variables": ["T", "Moist", "Count"],
  "plots": [
      {"var": "Count", "tab": 0, "plot": 0, "pen": 0, "label": "Counts"},
      {"var": "Moist", "tab": 1, "plot": 0, "pen": 1},

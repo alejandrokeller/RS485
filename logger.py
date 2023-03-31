@@ -151,12 +151,12 @@ while 1:
 
     # Start a new datafile if none available
     if not filedate and header_string:
-        # Check whether the specified data_path exists or not
-        isExist = os.path.exists(data_path)
-        if not isExist:
-            # Create a new directory because it does not exist
-            os.makedirs(data_path)
-            log_message("LOGGER", "Created path: ".format(data_path))
+       # Check whether the specified data_path exists or not
+       isExist = os.path.exists(data_path)
+       if not isExist:
+           # Create a new directory because it does not exist
+           os.makedirs(data_path)
+           log_message("LOGGER", "Created path: ".format(data_path))
 
        f = create_data_file(data_path, header=header_string, name=filename)
        log_message("LOGGER", "Writing to Datafile: " + f)

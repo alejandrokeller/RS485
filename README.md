@@ -60,10 +60,11 @@ Tested using python3.9.2 on a Raspberry Pi 4B
 6. Create a bash script to start logger and gui (e.g. `nano ~/Desktop/run_logger.sh`). Then write the following commands (substitute the location with the installation directory and the log file directory):
    ```
    #!/usr/bin/env bash
-   python /logger/logger.py >> /home/pi/logger/logs/logfile.txt &
-   python /logger/gui.py >> /home/pi/logger/logs/logfile.txt &
+   python /logger/logger.py 2>> /home/pi/logger/logs/logfile.txt &
+   python /logger/gui.py 2>> /home/pi/logger/logs/logfile.txt &
    ```
    Make the script executable using `chmod +x ~/Desktop/run_logger.sh`. Now you can double click on the icon to start logging and displaying the data. 
+   By usig the `2>>` log messages are redirected from `stderr` and appended to a file.
 
 ## Usage
 comming soon...

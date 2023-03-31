@@ -1,0 +1,2 @@
+#exclude config.ini in root
+/config.ini

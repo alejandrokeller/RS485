@@ -73,7 +73,8 @@ comming soon...
 
 The `JSON_CONFIG` file defines the appearance of GUI. You can choose to have one or more tabs displaying variables in graphics. Additionally, it is posible to display information text with below the tabs. This is the example file prepared for the falco VOC instrument (i.e. `config.falco.json`):
 ```
-{"variables": ["VOC", "Voltage", "T", "RF", "Range"],
+{"buffer": 3000,
+"variables": ["VOC", "Voltage", "T", "RF", "Range"],
  "plots": [
      {"var": "VOC", "tab": 0, "plot": 0, "pen": 0, "label": "VOC"},
      {"var": "Voltage", "tab": 1, "plot": 0, "pen": 1},
@@ -85,6 +86,7 @@ The `JSON_CONFIG` file defines the appearance of GUI. You can choose to have one
 
 The JSON dictionaries are organized as following:
 
+* `"buffer"` buffer size: number of datapoints to keep
 * `"variables"` is a list of the variables that will be kept for displaying. 
 * `"plots"` is a list of the plots (with a length defined by the `BUFFER` variable of the `config.ini`). Each plot is specified by the following dictionary:
    * `"var"`: Name of the variable to plot.

@@ -8,7 +8,7 @@ Based on the [Waveshare USB to RS485B](https://www.waveshare.com/wiki/USB_TO_RS4
 
 Currently supporting these sensors: 
 - Truebner AquaFlex and SMT100 soil mosture sensors (see e.g. [SMT100 Instruction Manual](https://www.truebner.de/assets/download/Anleitung_SMT100_V1.1.pdf)).
-- Ionscience [Falco Pumped Gas Detector series](https://ionscience.com/en/products/products-falco-fixed-voc-gas-detector-pumped-0-10ppm/) ([Instruction Manual](https://dodtec.com/media/brochures/FALCO%20-%20Explosion%20Proof%20VOC%20Detector/ION-FALCO-Manual.pdf)).
+- Ionscience [Falco Pumped Gas Detector series](https://ionscience.com/en/products/products-falco-fixed-voc-gas-detector-pumped-0-10ppm/) ([Instruction Manual](./config_templates/falco/Falco_Pumped_DE_Rev1.2.pdf)).
 
 Tested using python3.9.2 on a Raspberry Pi 4B
 

@@ -76,7 +76,7 @@ The logger program can work independently without GUI. Data will still be stored
 
 The logger program will start a new csv file every time it starts or at midnight for measurements lasting more than one day. The log files can be accessed through the directory defined in the `DATA_PATH` variable of the `config.ini` (in this example `/home/pi/logger/data`).
 
-It is possible to run the logger and GUI software in two different computers. This is done by selecting the appropriate host (i.e. the ip/address of the computer where the data will be streamed) in the `config.ini`file. Refer to the [socket python library](https://docs.python.org/3/library/socket.html) for more information.
+It is possible to run the logger and GUI scripts in different computers. This is done by selecting the appropriate host (i.e. the ip/address of the computer where the data will be streamed) in the `config.ini`file. Refer to the [socket python library](https://docs.python.org/3/library/socket.html) for more information.
 
 ## JSON_CONFIG file
 

@@ -68,15 +68,13 @@ Tested using python3.9.2 on a Raspberry Pi 4B
 
 ## Usage
 
-Make sure that your sensor is connected to the logging computer through the RS485B interface and that is properly set to trasmit data. If you follow the installation procedure, starting the program is straight forward: You can either double click the `run_logger.sh` script on the desktop or run it using a terminal command `~/Desktop/run_logger.sh`. This will start the logger and the GUI and log errors and messages to the text file `/home/pi/logger/logs/logfile.txt`.
-Alternativelly, you can open two different terminal windows and run the logger and gui programs independently using the commands python `/logger/logger.py` and 
-`python /logger/gui.py`. Without redirection, the errors and messages will be output to `stderr`.
+Make sure that your sensor is connected to the logging computer through the RS485B interface and that is properly set to trasmit data. If you follow the installation procedure, starting the program is straightforward: double click the `run_logger.sh` script on the desktop or use a terminal window to type the command `~/Desktop/run_logger.sh`. The script starts the logger and the GUI, and log errors and messages to the text file `/home/pi/logger/logs/logfile.txt` (or an alternative file defined during the installation).
+Alternativelly, run the scripts separatelly in two different terminal windows using the commands `python /logger/logger.py` and 
+`python /logger/gui.py`. Note that by running the scripts without redirection, the errors and messages will be shown on the default `stderr` file (usually the same terminal window).
 
-The logger program can work independently without GUI. Data will still be stored on a csv-file. No data will be shown in the GUI if the logger is not running. If the GUI is started before the logger, the script will wait for the logger to start. In otheŕwords, the GUI has no influence on the data logging. The GUI can be safely terminated and restarted several times without data loss. Each time, the logger will reconnect to the stream of data provided by the logger.
+The logger scripts operates saves data autonomously to csv files whitout requiring the GUI to be active. The GUI, however, cannot operate if the logger is not running. The GUI script will wait for the logger to send data before displaying the interfase. The GUI script can be safely terminated (`Ctrl+C`) and restarted several times without data loss from the logger side. The logger program will create a new csv file at startup or at midnight. The log files can be accessed through the directory defined in the `DATA_PATH` variable of the `config.ini` (in this example `/home/pi/logger/data`).
 
-The logger program will start a new csv file every time it starts or at midnight for measurements lasting more than one day. The log files can be accessed through the directory defined in the `DATA_PATH` variable of the `config.ini` (in this example `/home/pi/logger/data`).
-
-It is possible to run the logger and GUI scripts in different computers. This is done by selecting the appropriate host (i.e. the ip/address of the computer where the data will be streamed) in the `config.ini`file. Refer to the [socket python library](https://docs.python.org/3/library/socket.html) for more information.
+It is possible to run the logger and GUI scripts in different computers. This is done by selecting the appropriate host (i.e. the ip/address of the computer where the data will be streamed) in the `config.ini` file. Refer to the documentation for the [socket python library](https://docs.python.org/3/library/socket.html) for more information.
 
 ## JSON_CONFIG file
 

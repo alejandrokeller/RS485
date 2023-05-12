@@ -97,7 +97,7 @@ while 1:
         units_string = 'hh:mm:ss'
 
         try:
-          data_string += daytime
+          data_string = daytime
 
           # receive and decode new data
           data = sensor.readline()

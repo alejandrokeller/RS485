@@ -97,12 +97,6 @@ class Falco( minimalmodbus.Instrument ):
             'unit': '-'},
             {'var': 'Range',
             'val': self.get_range(),
-            'unit': '-'},
-            {'var': 'Cal100',
-            'val': self.get_cal100(),
-            'unit': '-'},
-            {'var': 'Cal3000',
-            'val': self.get_cal3000(),
             'unit': '-'}
         ]
 

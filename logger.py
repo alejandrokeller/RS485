@@ -49,6 +49,7 @@ if os.path.exists(config_file):
     server_port         = eval(config['TCP_INTERFACE']['HOST_PORT'])
     
     buffersize          = eval(config['LOGGER']['BUFFER'])
+    wait                = eval(config['LOGGER']['WAIT'])
     basefilename        = eval(config['LOGGER']['DATAFILE'])
     extension           = eval(config['LOGGER']['EXTENSION'])
 else:
@@ -80,105 +81,106 @@ while not sensor:
                 sensor_address, sensor_port))
         log_message("LOGGER", "Waiting 5 seconds...")
         time.sleep(5)
-
- #        exit()
+        
+olddate = datetime.datetime.now()
 
 while 1:
-    daytime = time.strftime("%H:%M:%S")
-    
-    # initialize the datafile header data
-    columns_string = 'daytime'
-    units_string = 'hh:mm:ss'
-    
-    try:
-      data_string += daytime
-
-      # receive and decode new data
-      data = sensor.readline()
-      json_string = json.dumps(data)
-      for dic in data:
-         data_string += '\t' +  repr(dic['val'])
-         columns_string += '\t' + dic['var']
-         units_string   += '\t' + dic['unit']
-
-      data_string += '\n' 
-         
-      # put together the file header
-      header_string = columns_string + '\n' + units_string + '\n'
-      
-      if json_string:
-        # transmit TCP data
-        sock = send_string(json_string, server_address, sock)
-
-        # update buffer and counter
-        x+= data_string
-        counter+=1;
-
-#     except minimalmodbus.ModbusException:
-#        log_message("LOGGER", "cannot read data-line. Waiting 5...")
-#        time.sleep(5)
-
-    except KeyboardInterrupt:
-       log_message("LOGGER", "aborted by user!")
-       log_message("LOGGER", "Writing data...")
-       
-       if filedate:
-           fo = open(f, "a")
-           fo.write(x)
-           fo.close()
-       else:
-           log_message("LOGGER", "No data file in use...")
-
-       if sock:
-           log_message("LOGGER", "Closing socket...")
-           sock.shutdown(socket.SHUT_RDWR)
-           sock.close()
-       log_message("LOGGER", "bye...")
-       break
-
-    except:
-       log_message("LOGGER", "something went wrong... Waiting 5 seconds...")
-       log_message("LOGGER", "    --- error type: " + str(sys.exc_info()[0]))
-       log_message("LOGGER", "    --- error value: " + str(sys.exc_info()[1]))
-       exec_tb = sys.exc_info()[2]
-       fname = os.path.split(exec_tb.tb_frame.f_code.co_filename)[1]
-       log_message("LOGGER", "    --- error File: {}".format(fname))
-       log_message("LOGGER", "    --- error line: {}".format(exec_tb.tb_lineno))
-
-       time.sleep(5)
-
     newdate = datetime.datetime.now()
-
-    # Start a new datafile if none available
-    if not filedate and header_string:
-       # Check whether the specified data_path exists or not
-       isExist = os.path.exists(data_path)
-       if not isExist:
-           # Create a new directory because it does not exist
-           os.makedirs(data_path)
-           log_message("LOGGER", "Created path: ".format(data_path))
-
-       f = create_data_file(data_path, header=header_string, name=filename)
-       log_message("LOGGER", "Writing to Datafile: " + f)
-       filedate = newdate
     
-    if filedate:
+    time_diff = newdate - olddate
+    if time_diff.total_seconds() > wait:     
+        
+        daytime = time.strftime("%H:%M:%S")
 
-        # Create a new file at midnight
-        if newdate.day != filedate.day:
-           fo = open(f, "a")
-           fo.write(x)
-           fo.close()
-           x=''
-           counter=0
-           filedate = newdate
+        # initialize the datafile header data
+        columns_string = 'daytime'
+        units_string = 'hh:mm:ss'
+
+        try:
+          data_string += daytime
+
+          # receive and decode new data
+          data = sensor.readline()
+          json_string = json.dumps(data)
+          for dic in data:
+             data_string += '\t' +  repr(dic['val'])
+             columns_string += '\t' + dic['var']
+             units_string   += '\t' + dic['unit']
+
+          data_string += '\n' 
+
+          # put together the file header
+          header_string = columns_string + '\n' + units_string + '\n'
+
+          if json_string:
+            # transmit TCP data
+            sock = send_string(json_string, server_address, sock)
+
+            # update buffer and counter
+            x+= data_string
+            counter+=1;
+
+        except KeyboardInterrupt:
+           log_message("LOGGER", "aborted by user!")
+           log_message("LOGGER", "Writing data...")
+
+           if filedate:
+               fo = open(f, "a")
+               fo.write(x)
+               fo.close()
+           else:
+               log_message("LOGGER", "No data file in use...")
+
+           if sock:
+               log_message("LOGGER", "Closing socket...")
+               sock.shutdown(socket.SHUT_RDWR)
+               sock.close()
+           log_message("LOGGER", "bye...")
+           break
+
+        except:
+           log_message("LOGGER", "something went wrong... Waiting 5 seconds...")
+           log_message("LOGGER", "    --- error type: " + str(sys.exc_info()[0]))
+           log_message("LOGGER", "    --- error value: " + str(sys.exc_info()[1]))
+           exec_tb = sys.exc_info()[2]
+           fname = os.path.split(exec_tb.tb_frame.f_code.co_filename)[1]
+           log_message("LOGGER", "    --- error File: {}".format(fname))
+           log_message("LOGGER", "    --- error line: {}".format(exec_tb.tb_lineno))
+
+           time.sleep(5)
+
+        olddate = newdate
+
+        # Start a new datafile if none available
+        if not filedate and header_string:
+           # Check whether the specified data_path exists or not
+           isExist = os.path.exists(data_path)
+           if not isExist:
+               # Create a new directory because it does not exist
+               os.makedirs(data_path)
+               log_message("LOGGER", "Created path: ".format(data_path))
+
            f = create_data_file(data_path, header=header_string, name=filename)
            log_message("LOGGER", "Writing to Datafile: " + f)
+           filedate = newdate
 
-        # write and clear buffer if buffersize was reached
-        elif counter >= buffersize:
-           fo = open(f, "a")
-           fo.write(x)
-           fo.close()
-           x=''
-           counter=0
+        if filedate:
+
+            # Create a new file at midnight
+            if newdate.day != filedate.day:
+               fo = open(f, "a")
+               fo.write(x)
+               fo.close()
+               x=''
+               counter=0
+               filedate = newdate
+               f = create_data_file(data_path, header=header_string, name=filename)
+               log_message("LOGGER", "Writing to Datafile: " + f)
+
+            # write and clear buffer if buffersize was reached
+            elif counter >= buffersize:
+               fo = open(f, "a")
+               fo.write(x)
+               fo.close()
+               x=''
+               counter=0
